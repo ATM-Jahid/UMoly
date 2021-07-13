@@ -2,7 +2,7 @@
 ######    Initialization
 #################################
 
-log		log.grain
+log		log.GRAIN
 units		metal
 boundary	p p p
 atom_style	atomic
@@ -19,15 +19,15 @@ variable	Lx equal lx
 variable	Ly equal ly
 variable	Lz equal lz
 
-variable	xHalf equal xdim
-variable	yHalf equal ydim
-variable	zHalf equal zdim
+variable	xHalf equal xHALF
+variable	yHalf equal yHALF
+variable	zHalf equal zHALF
 variable	latCons equal LATT
-variable	P equal run
-variable	Q equal rise
-variable	MoPart equal portion
+variable	P equal RUN
+variable	Q equal RISE
+variable	MoPart equal MOLY
 variable	seed equal SEED
-variable	Tmp equal temper
+variable	Tmp equal TEMP
 
 #################################
 ######    Geometry
@@ -62,13 +62,19 @@ variable	c2 equal count(mo)
 velocity	all create ${Tmp} ${seed}
 
 fix		cp1 all npt temp ${Tmp} ${Tmp} 0.1 iso 0 0 0.1
-fix		av1 all ave/time 1 50 100 v_T v_E v_V v_Pr v_Lx v_Ly v_Lz v_c1 v_c2 file avg1.grain
+fix		av1 all ave/time 1 10000 50000 v_T v_E v_V v_Pr v_Lx v_Ly v_Lz v_c1 v_c2 file relax.GRAIN
 
-dump		1 all atom 10 dumpRelax.grain
+dump		1 all atom 50000 dump.GRAIN
 
 thermo_style	custom step temp pe press vol v_c1 v_c2
-thermo		10
-run		100
+thermo		1000
+run		100000
+
+unfix		cp1
+
+#################################
+######    Relax nvt 1
+#################################
 
 variable	halfX equal f_av1[5]/2
 variable	halfY equal f_av1[6]/2
@@ -76,19 +82,9 @@ variable	halfZ equal f_av1[7]/2
 
 change_box	all x final -${halfX} ${halfX} y final -${halfY} ${halfY} z final -${halfZ} ${halfZ} remap units box
 
-unfix		cp1
-unfix		av1
-
-#################################
-######    Relax nvt 1
-#################################
-
 fix		cv1 all nvt temp ${Tmp} ${Tmp} 0.1
-fix		av2 all ave/time 1 5 10 v_E v_T v_Pr v_V v_c1 v_c2 file avg2.grain
 
-run		50
-
-unfix		av2
+run		50000
 
 #################################
 ######    Interstitial
@@ -100,7 +96,7 @@ unfix		av2
 #region		inter block -2 2 -2 2 -2 2 side in units box
 #fix		extra all deposit 1 ${inType} 1 ${seed} region inter near 2.0 attempt 10 units box
 #
-#run		50
+#run		1000
 #
 #unfix		extra
 
@@ -112,7 +108,7 @@ unfix		av2
 #group		sub region vac
 #delete_atoms	group sub
 #
-#run		50
+#run		1000
 
 #################################
 ######    Relax nvt 2
@@ -121,11 +117,9 @@ unfix		av2
 group		u type 1
 group		mo type 2
 
-fix		av3 all ave/time 1 5 10 v_E v_T v_Pr v_V v_c1 v_c2 file avg3.grain
+run		50000
 
-run		50
-
-unfix		av3
+unfix		av1
 
 #################################
 ######    Diffusion
@@ -140,12 +134,8 @@ compute		allMsd all msd com yes
 compute		uMsd u msd com yes
 compute		moMsd mo msd com yes
 
-fix		mesdi1 all ave/time 1 5 10 c_uMsd[1] c_uMsd[2] c_uMsd[3] c_moMsd[1] c_moMsd[2] c_moMsd[3] c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.grain
-fix		mesdi2 all ave/time 1 5 10 v_T v_E v_V v_Pr v_c1 v_c2 c_uMsd[4] c_moMsd[4] c_allMsd[4] file msd.grain
+fix		mesdi1 all ave/time 1 5 100000 c_uMsd[1] c_uMsd[2] c_uMsd[3] c_moMsd[1] c_moMsd[2] c_moMsd[3] c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.GRAIN
+fix		mesdi2 all ave/time 1 5 100000 v_T v_E v_V v_Pr v_c1 v_c2 c_uMsd[4] c_moMsd[4] c_allMsd[4] file msd.GRAIN
 
-dump		2 all atom 10 dumpDiff.grain
-
-thermo_style	custom step pe temp press vol v_c1 v_c2
-thermo		10
-
-run		100
+thermo		10000
+run		5000000
