@@ -44,7 +44,7 @@ create_atoms	1 region bottom
 set		region jar type/ratio 2 ${MoPart} ${seed}
 
 pair_style	adp
-pair_coeff	* * /home/ahasan3/builds/UMoly/potentials/U_Mo.alloy.adp U Mo
+pair_coeff	* * /home/atomsky/builds/UMoly/potentials/U_Mo.alloy.adp U Mo
 
 group		up region top
 group		down region bottom
@@ -62,13 +62,13 @@ variable	c2 equal count(mo)
 velocity	all create ${Tmp} ${seed}
 
 fix		cp1 all npt temp ${Tmp} ${Tmp} 0.1 iso 0 0 0.1
-fix		av1 all ave/time 1 10000 50000 v_T v_E v_V v_Pr v_Lx v_Ly v_Lz v_c1 v_c2 file relax.GRAIN
+fix		av1 all ave/time 1 10 25 v_T v_E v_V v_Pr v_Lx v_Ly v_Lz v_c1 v_c2 file relax.GRAIN
 
-dump		1 all atom 50000 dump.GRAIN
+dump		1 all atom 50 dump.GRAIN
 
 thermo_style	custom step temp pe press vol v_c1 v_c2
-thermo		1000
-run		100000
+thermo		10
+run		100
 
 unfix		cp1
 
@@ -84,7 +84,7 @@ change_box	all x final -${halfX} ${halfX} y final -${halfY} ${halfY} z final -${
 
 fix		cv1 all nvt temp ${Tmp} ${Tmp} 0.1
 
-run		50000
+run		100
 
 #################################
 ######    Interstitial
@@ -96,7 +96,7 @@ run		50000
 #region		inter block -2 2 -2 2 -2 2 side in units box
 #fix		extra all deposit 1 ${inType} 1 ${seed} region inter near 2.0 attempt 10 units box
 #
-#run		1000
+#run		100
 #
 #unfix		extra
 
@@ -108,7 +108,7 @@ run		50000
 #group		sub region vac
 #delete_atoms	group sub
 #
-#run		1000
+#run		100
 
 #################################
 ######    Relax nvt 2
@@ -117,7 +117,7 @@ run		50000
 group		u type 1
 group		mo type 2
 
-run		50000
+run		100
 
 unfix		av1
 
@@ -134,8 +134,8 @@ compute		allMsd all msd com yes
 compute		uMsd u msd com yes
 compute		moMsd mo msd com yes
 
-fix		mesdi1 all ave/time 1 5 100000 c_uMsd[1] c_uMsd[2] c_uMsd[3] c_moMsd[1] c_moMsd[2] c_moMsd[3] c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.GRAIN
-fix		mesdi2 all ave/time 1 5 100000 v_T v_E v_V v_Pr v_c1 v_c2 c_uMsd[4] c_moMsd[4] c_allMsd[4] file msd.GRAIN
+fix		mesdi1 all ave/time 1 5 100 c_uMsd[1] c_uMsd[2] c_uMsd[3] c_moMsd[1] c_moMsd[2] c_moMsd[3] c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.GRAIN
+fix		mesdi2 all ave/time 1 5 100 v_T v_E v_V v_Pr v_c1 v_c2 c_uMsd[4] c_moMsd[4] c_allMsd[4] file msd.GRAIN
 
-thermo		10000
-run		5000000
+thermo		10
+run		500
