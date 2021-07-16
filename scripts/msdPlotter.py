@@ -3,7 +3,7 @@
 import sys
 import matplotlib.pyplot as plt
 
-def escape(fileName):
+def draw(fileName):
     with open(fileName, 'r') as f:
         jar = f.readlines()
     jar = jar[2:]
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     folder = sys.argv[1:]
     print(folder)
     for file in folder:
-        escape(f'{file}')
+        draw(file)
 
     plt.legend()
     plt.show()
