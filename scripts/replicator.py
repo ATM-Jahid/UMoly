@@ -29,22 +29,23 @@ zh = args.latt * (int(args.zdim/args.latt) + 1) / 2
 with open(f'in.{args.input}', 'r') as f:
     jar = f.readlines()
 
-if args.defect in 'interstitial':
-    have_to_find = 'Interstitial'
-elif args.defect in 'vacancy':
-    have_to_find = 'Vacancy'
+if args.defect != 'none':
+    if args.defect in 'interstitial':
+        have_to_find = 'Interstitial'
+    elif args.defect in 'vacancy':
+        have_to_find = 'Vacancy'
 
-for i in range(0, len(jar)):
-    if have_to_find in jar[i]:
-        UnStart = i
-        for j in range(i+2, len(jar)):
-            if "######" in jar[j]:
-                UnEnd = j
-                break
-        break
+    for i in range(0, len(jar)):
+        if have_to_find in jar[i]:
+            UnStart = i
+            for j in range(i+2, len(jar)):
+                if "######" in jar[j]:
+                    UnEnd = j
+                    break
+            break
 
-for i in range(UnStart+3, UnEnd-1):
-    jar[i] = jar[i].replace('#', '', 1)
+    for i in range(UnStart+3, UnEnd-1):
+        jar[i] = jar[i].replace('#', '', 1)
 
 jar = ''.join(jar)
 
