@@ -11,10 +11,11 @@ def draw(fileName):
     step = []
     bar = []
     for x in jar:
-        step.append(int(x.split()[0]))
+        step.append(float(x.split()[0]))
         bar.append(float(x.split()[9]))
 
-    plt.plot(step, bar, label=fileName[4:])
+    tag = fileName[fileName.find('.')+1:]
+    plt.plot(step, bar, label=tag)
 
 if __name__ == "__main__":
     folder = sys.argv[1:]
