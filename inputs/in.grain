@@ -91,24 +91,24 @@ run		50000
 #################################
 
 #variable	Rand equal random(1,100,${seed})
-#if		"${Rand} > 22" then "variable inType equal 1" else "variable inType equal 2"
+#variable	PercMo equal "100 * v_MoPart"
+#if		"${Rand} > ${PercMo}" then "variable inType equal 1" else "variable inType equal 2"
 #
-#region		inter block -2 2 -2 2 -2 2 side in units box
-#fix		extra all deposit 1 ${inType} 1 ${seed} region inter near 2.0 attempt 10 units box
+#region		stitial block -${halfX} ${halfX} -2 2 -${halfZ} ${halfZ} side in units box
+#fix		extra all deposit 1 ${inType} 1 ${seed} region stitial near 2.0 attempt 10 units box
 #
 #run		1000
-#
 #unfix		extra
 
 #################################
 ######    Vacancy
 #################################
 
-#region		vac sphere 0 0 0 1.2 side in units box
-#group		sub region vac
-#delete_atoms	group sub
+#region		cancy block -${halfX} ${halfX} -2 2 -${halfZ} ${halfZ} side in units box
+#fix		hole all evaporate 1000 1 cancy ${seed}
 #
 #run		1000
+#unfix		hole
 
 #################################
 ######    Relax nvt 2
