@@ -18,13 +18,13 @@ parser.add_argument('-o', '--output', default='niarg', metavar='', help='output 
 parser.add_argument('-n', '--number', default=1, metavar='', help='replication number', type=int)
 args = parser.parse_args()
 
-p = int(args.tilt / 100)
-q = int((args.tilt % 100) / 10)
+p = args.tilt // 100
+q = (args.tilt % 100) // 10
 
 k = args.latt * math.sqrt(p*p + q*q)
-xh = k * (int(args.xdim/k) + 1) / 2
-yh = k * (int(args.ydim/k) + 1) / 2
-zh = args.latt * (int(args.zdim/args.latt) + 1) / 2
+xh = k * (args.xdim//k + 1) / 2
+yh = k * (args.ydim//k + 1) / 2
+zh = args.latt * (args.zdim//args.latt + 1) / 2
 
 with open(f'in.{args.input}', 'r') as f:
     jar = f.readlines()
