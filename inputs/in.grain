@@ -130,9 +130,9 @@ timestep	0.002
 
 fix		cent all recenter INIT INIT INIT
 
-compute		allMsd all msd com yes
-compute		uMsd u msd com yes
-compute		moMsd mo msd com yes
+compute		allMsd all msd
+compute		uMsd u msd
+compute		moMsd mo msd
 
 fix		mesdi1 all ave/time 1 5 100000 c_uMsd[1] c_uMsd[2] c_uMsd[3] c_moMsd[1] c_moMsd[2] c_moMsd[3] c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.GRAIN
 fix		mesdi2 all ave/time 1 5 100000 v_T v_E v_V v_Pr v_c1 v_c2 c_uMsd[4] c_moMsd[4] c_allMsd[4] file msd.GRAIN
