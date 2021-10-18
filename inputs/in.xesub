@@ -59,8 +59,10 @@ delete_atoms	overlap 2.7 up down compress yes
 
 group		u type 1
 group		mo type 2
+group		xe type 3
 variable	c1 equal count(u)
 variable	c2 equal count(mo)
+variable	c3 equal count(xe)
 
 #################################
 ######    Relax npt
@@ -69,11 +71,11 @@ variable	c2 equal count(mo)
 velocity	all create ${Tmp} ${seed}
 
 fix		cp1 all npt temp ${Tmp} ${Tmp} 0.1 iso 0 0 0.1
-fix		av1 all ave/time 1 10000 50000 v_T v_E v_V v_Pr v_Lx v_Ly v_Lz v_c1 v_c2 file relax.GRAIN
+fix		av1 all ave/time 1 10000 50000 v_T v_E v_V v_Pr v_Lx v_Ly v_Lz v_c1 v_c2 v_c3 file relax.GRAIN
 
 dump		1 all atom 50000 dump.GRAIN
 
-thermo_style	custom step temp pe press vol v_c1 v_c2
+thermo_style	custom step temp pe press vol v_c1 v_c2 v_c3
 thermo		1000
 run		100000
 
@@ -122,6 +124,7 @@ run		50000
 # Necessary if defects are introduced
 group		u type 1
 group		mo type 2
+group		xe type 3
 
 run		50000
 unfix		av1
@@ -138,9 +141,10 @@ fix		cent all recenter INIT INIT INIT
 compute		allMsd all msd
 compute		uMsd u msd
 compute		moMsd mo msd
+compute		xeMsd xe msd
 
-fix		mesdi1 all ave/time 1 5 100000 c_uMsd[1] c_uMsd[2] c_uMsd[3] c_moMsd[1] c_moMsd[2] c_moMsd[3] c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.GRAIN
-fix		mesdi2 all ave/time 1 5 100000 v_T v_E v_V v_Pr v_c1 v_c2 c_uMsd[4] c_moMsd[4] c_allMsd[4] file msd.GRAIN
+fix		mesdi1 all ave/time 1 5 100000 c_uMsd[1] c_uMsd[2] c_uMsd[3] c_moMsd[1] c_moMsd[2] c_moMsd[3] c_xeMsd[1] c_xeMsd[2] c_xeMsd[3] c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.GRAIN
+fix		mesdi2 all ave/time 1 5 100000 v_T v_E v_V v_Pr v_c1 v_c2 v_c3 c_uMsd[4] c_moMsd[4] c_xeMsd[4] c_allMsd[4] file msd.GRAIN
 
 thermo		10000
 run		5000000
