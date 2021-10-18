@@ -65,7 +65,8 @@ variable	c2 equal count(mo)
 velocity	all create ${Tmp} ${seed}
 
 fix		cp1 all npt temp ${Tmp} ${Tmp} 0.1 iso 0 0 0.1
-fix		av1 all ave/time 1 10000 50000 v_T v_E v_V v_Pr v_Lx v_Ly v_Lz v_c1 v_c2 file relax.GRAIN
+fix		av1 all ave/time 1 10000 50000 v_T v_E v_V v_Pr &
+			v_Lx v_Ly v_Lz v_c1 v_c2 file relax.GRAIN
 
 dump		1 all atom 50000 dump.GRAIN
 
@@ -83,7 +84,8 @@ variable	halfX equal f_av1[5]/2
 variable	halfY equal f_av1[6]/2
 variable	halfZ equal f_av1[7]/2
 
-change_box	all x final -${halfX} ${halfX} y final -${halfY} ${halfY} z final -${halfZ} ${halfZ} remap units box
+change_box	all x final -${halfX} ${halfX} y final -${halfY} ${halfY} &
+			z final -${halfZ} ${halfZ} remap units box
 
 fix		cv1 all nvt temp ${Tmp} ${Tmp} 0.1
 
@@ -95,10 +97,12 @@ run		50000
 
 #variable	Rand equal random(1,100,${seed})
 #variable	PercMo equal "100 * v_MoPart"
-#if		"${Rand} > ${PercMo}" then "variable inType equal 1" else "variable inType equal 2"
+#if		"${Rand} > ${PercMo}" then "variable inType equal 1" &
+#			else "variable inType equal 2"
 #
 #region		stitial block EDGE EDGE -2 2 EDGE EDGE side in units box
-#fix		extra all deposit 1 ${inType} 1 ${seed} region stitial near 2.0 attempt 10 units box
+#fix		extra all deposit 1 ${inType} 1 ${seed} &
+#			region stitial near 2.0 attempt 10 units box
 #
 #run		1000
 #unfix		extra
@@ -137,8 +141,11 @@ compute		allMsd all msd
 compute		uMsd u msd
 compute		moMsd mo msd
 
-fix		mesdi1 all ave/time 1 5 100000 c_uMsd[1] c_uMsd[2] c_uMsd[3] c_moMsd[1] c_moMsd[2] c_moMsd[3] c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.GRAIN
-fix		mesdi2 all ave/time 1 5 100000 v_T v_E v_V v_Pr v_c1 v_c2 c_uMsd[4] c_moMsd[4] c_allMsd[4] file msd.GRAIN
+fix		mesdi1 all ave/time 1 5 100000 c_uMsd[1] c_uMsd[2] c_uMsd[3] &
+			c_moMsd[1] c_moMsd[2] c_moMsd[3] &
+			c_allMsd[1] c_allMsd[2] c_allMsd[3] file msdxyz.GRAIN
+fix		mesdi2 all ave/time 1 5 100000 v_T v_E v_V v_Pr v_c1 v_c2 &
+			c_uMsd[4] c_moMsd[4] c_allMsd[4] file msd.GRAIN
 
 thermo		10000
 run		5000000
