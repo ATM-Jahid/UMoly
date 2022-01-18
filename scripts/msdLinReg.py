@@ -10,7 +10,7 @@ slopes = []
 def draw(fileName):
     with open(fileName, 'r') as f:
         jar = f.readlines()
-    jar = jar[12:]
+    jar = jar[11:]
 
     step = []
     bar = []
@@ -23,9 +23,7 @@ def draw(fileName):
     print(m, '\t', b)
     slopes.append(m)
 
-    ordinate = []
-    for x in step:
-        ordinate.append(m*x + b)
+    ordinate = [m*x+b for x in step]
 
     tag = fileName[fileName.find('.')+1:]
     plt.plot(step, ordinate, label=tag)
