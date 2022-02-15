@@ -43,19 +43,19 @@ lattice		bcc ${latCons} orient x -$Q -$P 0 orient y $P -$Q 0 orient z 0 0 1
 create_atoms	1 region bottom
 set		region jar type/ratio 2 ${MoPart} ${seed}
 
-# Create Xe substitutional impurity
-region		substi block EDGE EDGE -2 2 EDGE EDGE side in units box
-group		stitut region substi
-group		mo type 2
-group		tional intersect stitut mo
-set		group tional type/subset 3 1 ${seed}
-
 pair_style	adp
 pair_coeff	* * /home/ahasan3/builds/UMoly/potentials/UMoXe.adp U Mo Xe
 
 group		up region top
 group		down region bottom
 delete_atoms	overlap 2.7 up down compress yes
+
+# Create Xe substitutional impurity
+region		substi block EDGE EDGE -2 2 EDGE EDGE side in units box
+group		stitut region substi
+group		mo type 2
+group		tional intersect stitut mo
+set		group tional type/subset 3 1 ${seed}
 
 group		u type 1
 group		mo type 2
