@@ -12,17 +12,17 @@ def main():
             jar = f.readlines()
 
         # number of atoms
-        num_atoms = int(jar[3])
-        N = num_atoms + 9
+        N = int(jar[3])
+        chunk = N + 9
 
         # boundary values
         blo, bhi = [[0]*3, [0]*3]
         for i in range(3):
-            blo[i], bhi[i] = [float(x) for x in jar[5*N+5+i].split()]
+            blo[i], bhi[i] = [float(x) for x in jar[5*chunk+5+i].split()]
 
         # initialize atom positions
-        r_init = [0]*(num_atoms+1)
-        for line in jar[5*N+9: 6*N]:
+        r_init = [0]*(N+1)
+        for line in jar[5*chunk+9: 6*chunk]:
             # store line values temporarily
             tmp = line.split()
             ii = int(tmp[0])
@@ -36,13 +36,13 @@ def main():
         r_prev = copy.deepcopy(r_init)
 
         # loop over all timesteps
-        r_curr = [0]*(num_atoms+1)
+        r_curr = [0]*(N+1)
         dr = [0]*3
         for i in range(6, 106):
             # initialize MSD variable
             Nmsd = 0
             # go through the lines of a timestep
-            for line in jar[i*N+9: (i+1)*N]:
+            for line in jar[i*chunk+9: (i+1)*chunk]:
                 tmp = line.split()
                 ii = int(tmp[0])
                 r_curr[ii] = [int(tmp[1])]
@@ -73,6 +73,19 @@ def main():
 
             # prep for next iteration
             r_prev = copy.deepcopy(r_curr)
+
+        atom_msd = [0]*(N+1)
+        for ii in range(1, N+1):
+            jj = 0
+            for l in range(3):
+                dspl = r_curr[ii][l+4] + r_curr[ii][l+1] - r_init[ii][l+1]
+                d = dspl * (bhi[l] - blo[l])
+                jj += d * d
+            atom_msd[ii] = jj
+
+        with open('atom_msd.txt', 'a') as f:
+            for line in atom_msd:
+                f.write(str(line) + '\n')
 
 if __name__ == '__main__':
     main()
