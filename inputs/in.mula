@@ -1,0 +1,89 @@
+#################################
+######    Initialization
+#################################
+
+log		log.GRAIN
+units		metal
+boundary	p p p
+atom_style	atomic
+
+#################################
+######    Variables
+#################################
+
+variable	V equal vol
+variable	E equal pe
+variable	Pr equal press
+variable	T equal temp
+variable	Lx equal lx
+variable	Ly equal ly
+variable	Lz equal lz
+
+variable	xHalf equal xHALF
+variable	yHalf equal yHALF
+variable	zHalf equal zHALF
+variable	latCons equal LATT
+variable	P equal RUN
+variable	Q equal RISE
+variable	MoPart equal MOLY
+variable	seed equal SEED
+variable	Tmp equal TEMP
+
+#################################
+######    Geometry
+#################################
+
+region		jar block -${xHalf} ${xHalf} -${yHalf} ${yHalf} -${zHalf} ${zHalf}
+create_box	3 jar
+region		top block INF INF -0.1 ${yHalf} INF INF
+lattice		fcc ${latCons} orient x $P $Q 0 orient y -$Q $P 0 orient z 0 0 1
+create_atoms	3 region top
+region		bottom block INF INF -${yHalf} 0.1 INF INF
+lattice		fcc ${latCons} orient x -$Q -$P 0 orient y $P -$Q 0 orient z 0 0 1
+create_atoms	3 region bottom
+set		region jar type/ratio 1 ${MoPart} ${seed}
+
+pair_style	adp
+pair_coeff	* * /home/afro/builds/illumine/potentials/Si_Au_Al.adp Si Au Al
+
+group		up region top
+group		down region bottom
+delete_atoms	overlap 2.7 up down compress yes
+
+group		si type 1
+group		al type 3
+variable	c1 equal count(si)
+variable	c3 equal count(al)
+
+#################################
+######    Relax npt
+#################################
+
+velocity	all create ${Tmp} ${seed}
+
+fix		cp1 all npt temp ${Tmp} ${Tmp} 0.1 iso 0 0 0.1
+fix		av1 all ave/time 1 10 25 v_T v_E v_V v_Pr &
+			v_Lx v_Ly v_Lz v_c1 v_c3 file relax.GRAIN
+
+dump		1 all atom 50 dump.GRAIN
+
+thermo_style	custom step temp pe press vol v_c1 v_c3
+thermo		10
+run		100
+
+unfix		cp1
+
+#################################
+######    Relax nvt 1
+#################################
+
+variable	halfX equal f_av1[5]/2
+variable	halfY equal f_av1[6]/2
+variable	halfZ equal f_av1[7]/2
+
+change_box	all x final -${halfX} ${halfX} y final -${halfY} ${halfY} &
+			z final -${halfZ} ${halfZ} remap units box
+
+fix		cv1 all nvt temp ${Tmp} ${Tmp} 0.1
+
+run		100
