@@ -11,6 +11,11 @@ def main():
         with open(file, 'r') as f:
             jar = f.readlines()
 
+        # make a write file
+        fileName = file[file.find('.')+1:]
+        writeDump = f'fakedump.{fileName}'
+        writeMsd = f'atom_msd_{fileName}.txt'
+
         # number of atoms
         N = int(jar[3])
         chunk = N + 9
@@ -38,6 +43,7 @@ def main():
         # loop over all timesteps
         r_curr = [0]*(N+1)
         dr = [0]*3
+        fooPrint = ''
         for i in range(6, 106):
             # initialize MSD variable
             Nmsd = 0
@@ -67,12 +73,15 @@ def main():
             msd = Nmsd / N
             print(msd)
 
-            # print out the MSDs in a file
-            with open('fakedump', 'a') as f:
-                f.write(str((i-5)*50000) + '\t' + str(msd) + '\n')
+            # add MSDs to a string
+            fooPrint += str((i-5)*50000) + '\t' + str(msd) + '\n'
 
             # prep for next iteration
             r_prev = copy.deepcopy(r_curr)
+
+        # print out the total MSDs in a file
+        with open(writeDump, 'a') as f:
+            f.write(fooPrint)
 
         atom_msd = [0]*(N+1)
         for ii in range(1, N+1):
@@ -83,7 +92,9 @@ def main():
                 jj += d * d
             atom_msd[ii] = jj
 
-        with open('atom_msd.txt', 'a') as f:
+        # print out MSDs of each atom for the last timestep
+        atom_msd.pop(0)
+        with open(writeMsd, 'a') as f:
             for line in atom_msd:
                 f.write(str(line) + '\n')
 
