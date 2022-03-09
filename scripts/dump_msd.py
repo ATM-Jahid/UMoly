@@ -13,8 +13,9 @@ def main():
 
         # make a write file
         fileName = file[file.find('.')+1:]
-        writeDump = f'fakedump.{fileName}'
-        writeMsd = f'atom_msd_{fileName}.txt'
+        writeAvgMsd = f'check_avg_msd.{fileName}'
+        writeAtomMsd = f'atom_msd_dump.{fileName}'
+        writeFinalMsd = f'final_atom_msd_{fileName}.txt'
 
         # number of atoms
         N = int(jar[3])
@@ -27,6 +28,7 @@ def main():
 
         # initialize atom positions
         r_init = [0]*(N+1)
+        atom_msd = [0]*(N+1)
         for line in jar[5*chunk+9: 6*chunk]:
             # store line values temporarily
             tmp = line.split()
@@ -42,7 +44,6 @@ def main():
 
         # loop over all timesteps
         r_curr = [0]*(N+1)
-        dr = [0]*3
         fooPrint = ''
         for i in range(6, 106):
             # initialize MSD variable
@@ -58,6 +59,7 @@ def main():
                 r_curr[ii].extend([0,0,0])
 
                 # put boundary jump counters here
+                jj = 0
                 for l in range(3):
                     cutoff = 0.75
                     if r_prev[ii][l+1] > cutoff and r_curr[ii][l+1] < (1-cutoff):
@@ -68,19 +70,28 @@ def main():
                         r_curr[ii][l+4] = r_prev[ii][l+4]
 
                     dspl = r_curr[ii][l+4] + r_curr[ii][l+1] - r_init[ii][l+1]
-                    dr[l] = dspl * (bhi[l] - blo[l])
-                    Nmsd += dr[l] * dr[l]
+                    d = dspl * (bhi[l] - blo[l])
+                    jj += d * d
+
+                atom_msd[ii] = jj
+                Nmsd += atom_msd[ii]
+
             msd = Nmsd / N
             print(msd)
 
             # add MSDs to a string
             fooPrint += str((i-5)*50000) + '\t' + str(msd) + '\n'
 
+            # print atom MSDs to a file
+            with open(writeAtomMsd, 'a') as f:
+                for x in range(1, len(atom_msd)):
+                    f.write(str(atom_msd[x]) + '\n')
+
             # prep for next iteration
             r_prev = copy.deepcopy(r_curr)
 
         # print out the total MSDs in a file
-        with open(writeDump, 'a') as f:
+        with open(writeAvgMsd, 'a') as f:
             f.write(fooPrint)
 
         atom_msd = [0]*(N+1)
@@ -94,7 +105,7 @@ def main():
 
         # print out MSDs of each atom for the last timestep
         atom_msd.pop(0)
-        with open(writeMsd, 'a') as f:
+        with open(writeFinalMsd, 'a') as f:
             for line in atom_msd:
                 f.write(str(line) + '\n')
 
