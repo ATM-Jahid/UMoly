@@ -34,25 +34,32 @@ def main():
         timesteps = []
         gb_diffs = []
         bulk_diffs = []
+        tot_diffs = []
         for i in range(1, 100, 2):
             # initialize two different MSDs
             NgbMsd = 0
             NbulkMsd = 0
+            Nmsd = 0
             # go through lines of a timestep
             for jj in range(1, chunk):
                 tmp = float(jar[i*chunk+jj])
                 if atom_class[jj]:
                     NgbMsd += tmp
+                    Nmsd += tmp
                 else:
                     NbulkMsd += tmp
+                    Nmsd += tmp
 
             timesteps.append((i+1)*50000)
             gb_diffs.append(NgbMsd / gb_atoms)
             bulk_diffs.append(NbulkMsd / bulk_atoms)
+            tot_diffs.append(Nmsd / (chunk - 1))
 
         with open(writeFile, 'a') as f:
-            for x, y, z in zip(timesteps, gb_diffs, bulk_diffs):
-                f.write(str(x) + '\t' + str(y) + '\t' + str(z) + '\n')
+            f.write('# Mean squared displacement data for classified atoms\n')
+            f.write('# Timestep gb_avg bulk_avg tot_avg\n')
+            for x, y, z, v in zip(timesteps, gb_diffs, bulk_diffs, tot_diffs):
+                f.write(str(x) + '\t' + str(y) + '\t' + str(z) + '\t' + str(v) + '\n')
 
 if __name__ == '__main__':
     main()
