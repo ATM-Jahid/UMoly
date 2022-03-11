@@ -21,8 +21,8 @@ def main():
         # define two classes of atoms based on MSD
         chunk = len(jar) // 100
         atom_class = [0]*chunk
-        for ii in range(1, chunk):
-            tmp = float(jar[99*chunk+ii])
+        for ii in range(2, chunk):
+            tmp = float(jar[99*chunk+ii].split()[3])
             if tmp > 3:
                 gb_atoms += 1
                 atom_class[ii] = 1
@@ -41,8 +41,8 @@ def main():
             NbulkMsd = 0
             Nmsd = 0
             # go through lines of a timestep
-            for jj in range(1, chunk):
-                tmp = float(jar[i*chunk+jj])
+            for jj in range(2, chunk):
+                tmp = float(jar[i*chunk+jj].split()[3])
                 if atom_class[jj]:
                     NgbMsd += tmp
                     Nmsd += tmp
@@ -50,10 +50,10 @@ def main():
                     NbulkMsd += tmp
                     Nmsd += tmp
 
-            timesteps.append((i+1)*50000)
+            timesteps.append(int(jar[i*chunk].split()[1]))
             gb_diffs.append(NgbMsd / gb_atoms)
             bulk_diffs.append(NbulkMsd / bulk_atoms)
-            tot_diffs.append(Nmsd / (chunk - 1))
+            tot_diffs.append(Nmsd / (chunk - 2))
 
         with open(writeFile, 'a') as f:
             f.write('# Mean squared displacement data for classified atoms\n')
