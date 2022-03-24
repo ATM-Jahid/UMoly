@@ -15,8 +15,8 @@ def main():
         writeFile = f'cf_avg_msd.{fileName}'
 
         # diffusing and bulk atom counters
-        gb_atoms = 0
-        bulk_atoms = 0
+        num_gb_atoms = 0
+        num_bulk_atoms = 0
 
         # define two classes of atoms based on MSD
         chunk = len(jar) // 100
@@ -24,42 +24,54 @@ def main():
         for ii in range(2, chunk):
             tmp = float(jar[99*chunk+ii].split()[3])
             if tmp > 3:
-                gb_atoms += 1
+                num_gb_atoms += 1
                 atom_class[ii] = 1
             else:
-                bulk_atoms += 1
+                num_bulk_atoms += 1
 
-        print(gb_atoms, bulk_atoms)
+        print(num_gb_atoms, num_bulk_atoms)
 
         timesteps = []
-        gb_diffs = []
-        bulk_diffs = []
-        tot_diffs = []
+        gb_X_diff = []; gb_Y_diff = []; gb_Z_diff = []
+        gb_R_diff = []
+        bulk_R_diff = []
+        all_R_diff = []
         for i in range(1, 100, 2):
             # initialize two different MSDs
-            NgbMsd = 0
-            NbulkMsd = 0
-            Nmsd = 0
+            Ngb_X_msd = 0
+            Ngb_Y_msd = 0
+            Ngb_Z_msd = 0
+            Ngb_R_msd = 0
+            Nbulk_R_msd = 0
+            Nall_R_msd = 0
             # go through lines of a timestep
             for jj in range(2, chunk):
-                tmp = float(jar[i*chunk+jj].split()[3])
+                line = jar[i*chunk+jj].split()
                 if atom_class[jj]:
-                    NgbMsd += tmp
-                    Nmsd += tmp
+                    Ngb_X_msd += float(line[0])
+                    Ngb_Y_msd += float(line[1])
+                    Ngb_Z_msd += float(line[2])
+                    Ngb_R_msd += float(line[3])
+                    Nall_R_msd += float(line[3])
                 else:
-                    NbulkMsd += tmp
-                    Nmsd += tmp
+                    Nbulk_R_msd += float(line[3])
+                    Nall_R_msd += float(line[3])
 
             timesteps.append(int(jar[i*chunk].split()[1]))
-            gb_diffs.append(NgbMsd / gb_atoms)
-            bulk_diffs.append(NbulkMsd / bulk_atoms)
-            tot_diffs.append(Nmsd / (chunk - 2))
+            gb_X_diff.append(Ngb_X_msd / num_gb_atoms)
+            gb_Y_diff.append(Ngb_Y_msd / num_gb_atoms)
+            gb_Z_diff.append(Ngb_Z_msd / num_gb_atoms)
+            gb_R_diff.append(Ngb_R_msd / num_gb_atoms)
+            bulk_R_diff.append(Nbulk_R_msd / num_bulk_atoms)
+            all_R_diff.append(Nall_R_msd / (chunk - 2))
 
         with open(writeFile, 'a') as f:
             f.write('# Mean squared displacement data for classified atoms\n')
-            f.write('# Timestep gb_avg bulk_avg tot_avg\n')
-            for x, y, z, v in zip(timesteps, gb_diffs, bulk_diffs, tot_diffs):
-                f.write(str(x) + '\t' + str(y) + '\t' + str(z) + '\t' + str(v) + '\n')
+            f.write('# Timestep gb_X_avg gb_Y_avg gb_Z_avg gb_R_avg bulk_R_avg all_R_avg\n')
+            for t, x, y, z, r, b, a in zip(timesteps, gb_X_diff, gb_Y_diff, gb_Z_diff,
+                                            gb_R_diff, bulk_R_diff, all_R_diff):
+                f.write(str(t) + '\t' + str(x) + '\t' + str(y) + '\t' + str(z) + '\t'
+                        + str(r) + '\t' + str(b) + '\t' + str(a) + '\n')
 
 if __name__ == '__main__':
     main()
