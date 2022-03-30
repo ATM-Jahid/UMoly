@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import matplotlib.pyplot as plt
 
 def main():
     files = sys.argv[1:]
