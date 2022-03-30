@@ -10,10 +10,11 @@ def main():
     for file in files:
         with open(file, 'r') as f:
             jar = f.readlines()
-
         jar = jar[2:]
+
         time = []; tot = []
         x = []; y = []; z = []
+
         for line in jar:
             tmp = line.split()
             time.append(float(tmp[0]))
