@@ -13,8 +13,8 @@ def main():
 
         # make a write file
         fileName = file[file.find('.')+1:]
-        avgMsdFile = f'check_avg_msd.{fileName}'
-        atomMsdFile = f'atom_msd_dump.{fileName}'
+        chkMsdFile = f'check_msd.{fileName}'
+        atomSqdiFile = f'atom_sqdi.{fileName}'
 
         # number of atoms
         N = int(jar[3])
@@ -27,7 +27,7 @@ def main():
 
         # initialize atom positions
         r_init = [0]*(N+1)
-        atom_msd = [[0 for i in range(4)] for j in range(N+1)]
+        atom_sqdi = [[0 for i in range(4)] for j in range(N+1)]
         for line in jar[5*chunk+9: 6*chunk]:
             # store line values temporarily
             tmp = line.split()
@@ -72,11 +72,11 @@ def main():
 
                     dspl = r_curr[ii][l+4] + r_curr[ii][l+1] - r_init[ii][l+1]
                     d = dspl * (bhi[l] - blo[l])
-                    atom_msd[ii][l] = d * d
+                    atom_sqdi[ii][l] = d * d
 
                 # add all the components
-                atom_msd[ii][3] = atom_msd[ii][0] + atom_msd[ii][1] + atom_msd[ii][2]
-                Nmsd += atom_msd[ii][3]
+                atom_sqdi[ii][3] = atom_sqdi[ii][0] + atom_sqdi[ii][1] + atom_sqdi[ii][2]
+                Nmsd += atom_sqdi[ii][3]
 
             # calculate and add MSDs to a string
             msd = Nmsd / N
@@ -84,18 +84,18 @@ def main():
             fooPrint += str(timestep) + '\t' + str(msd) + '\n'
 
             # print atom MSDs to a file
-            with open(atomMsdFile, 'a') as f:
+            with open(atomSqdiFile, 'a') as f:
                 f.write(f'TIMESTEP: {timestep}' + '\n')
                 f.write('x^2' + '\t' +  'y^2' + '\t' + 'z^2' + '\t' + 'r^2' + '\n')
-                for x in range(1, len(atom_msd)):
-                    f.write(f'{atom_msd[x][0]:.5}\t{atom_msd[x][1]:.5}\t'
-                        + f'{atom_msd[x][2]:.5}\t{atom_msd[x][3]:.7}\n')
+                for x in range(1, len(atom_sqdi)):
+                    f.write(f'{atom_sqdi[x][0]:.5}\t{atom_sqdi[x][1]:.5}\t'
+                        + f'{atom_sqdi[x][2]:.5}\t{atom_sqdi[x][3]:.7}\n')
 
             # prep for next iteration
             r_prev = copy.deepcopy(r_curr)
 
         # print out the total MSDs in a file
-        with open(avgMsdFile, 'a') as f:
+        with open(chkMsdFile, 'a') as f:
             f.write(fooPrint)
 
 if __name__ == '__main__':
