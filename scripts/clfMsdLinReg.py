@@ -29,16 +29,16 @@ def draw(fileName, writeFile):
     with open(writeFile, 'a') as f:
         f.write(f'{m1:0.6}\t{m2:0.6}\t{m3:0.6}\t{m4:0.6}\n')
 
-    ordinate1 = [m1*x+b1 for x in step]
-    ordinate2 = [m2*x+b2 for x in step]
-    ordinate3 = [m3*x+b3 for x in step]
-    ordinate4 = [m4*x+b4 for x in step]
+    #ordinate1 = [m1*x+b1 for x in step]
+    #ordinate2 = [m2*x+b2 for x in step]
+    #ordinate3 = [m3*x+b3 for x in step]
+    #ordinate4 = [m4*x+b4 for x in step]
 
-    plt.plot(step, ordinate1, 'r')
-    plt.plot(step, ordinate2, 'g')
-    plt.plot(step, ordinate3, 'b')
-    plt.plot(step, ordinate4, 'k')
-    plt.show()
+    #plt.plot(step, ordinate1, 'r')
+    #plt.plot(step, ordinate2, 'g')
+    #plt.plot(step, ordinate3, 'b')
+    #plt.plot(step, ordinate4, 'k')
+    #plt.show()
 
 def main():
     folder = sys.argv[1:]
