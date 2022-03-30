@@ -7,6 +7,10 @@ def main():
     files = sys.argv[1:]
     print(files)
 
+    file1 = files[0]
+    fileName = file1[file1.find('.')+1:-2]
+    writeFile = f'crude_diff.{fileName}'
+
     diffs_gb = []
     diffs_bulk = []
     diff_atoms = []
@@ -15,9 +19,11 @@ def main():
         with open(file, 'r') as f:
             jar = f.readlines()
 
-        jar = [float(x) for x in jar]
-        foo = []
-        bar = []
+        num_ts = 100
+        offset = 2
+        chunk = len(jar) // num_ts
+        jar = [float(x.split()[3]) for x in jar[(num_ts-1)*chunk+offset:]]
+        foo = []; bar = []
         for x in jar:
             if x > 3:
                 foo.append(x)
@@ -28,24 +34,10 @@ def main():
         diffs_gb.append(sum(foo)/len(foo))
         diffs_bulk.append(sum(bar)/len(bar))
 
-    print(diff_atoms)
-    print(diffs_gb)
-    print(diffs_bulk)
-
-    diffs_gb = [x/40*1e-11 for x in diffs_gb]
-    diffs_bulk = [x/40*1e-11 for x in diffs_bulk]
-    temps = list(range(600, 1300, 100))
-    temps = [1/x for x in temps]
-
-    plt.plot(temps, diffs_gb)
-    plt.scatter(temps, diffs_gb, c='r')
-    #plt.plot(temps, diffs_bulk)
-    plt.yscale('log')
-    #plt.scatter(temps, diff_atoms, c='r')
-    #plt.plot(temps, diff_atoms)
-    #for i, j in zip(temps, diff_atoms):
-    #    plt.text(i, j+50, f'{j}')
-    plt.show()
+    with open(writeFile, 'a') as f:
+        f.write('num_diff\tgb_diff\tbulk_diff\n')
+        for n, g, b in zip(diff_atoms, diffs_gb, diffs_bulk):
+            f.write(f'{n}\t{g}\t{b}\n')
 
 if __name__ == '__main__':
     main()
