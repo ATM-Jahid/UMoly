@@ -11,7 +11,10 @@ for file in files:
     with open(file, 'r') as f:
         jar = f.readlines()
 
-    jar = [float(x) for x in jar]
+    num_ts = 100
+    offset = 2
+    chunk = len(jar) // num_ts
+    jar = [float(x.split()[3]) for x in jar[99*chunk+offset:]]
 
     binwidth = 0.5
     binlist = np.arange(min(jar), max(jar)+binwidth, binwidth)
