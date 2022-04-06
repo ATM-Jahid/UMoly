@@ -50,13 +50,6 @@ group		up region top
 group		down region bottom
 delete_atoms	overlap 2.7 up down compress yes
 
-# Create Xe substitutional impurity
-region		substi block EDGE EDGE -2 2 EDGE EDGE side in units box
-group		stitut region substi
-group		mo type 2
-group		tional intersect stitut mo
-set		group tional type/subset 3 1 ${seed}
-
 group		u type 1
 group		mo type 2
 group		xe type 3
@@ -98,6 +91,24 @@ fix		cv1 all nvt temp ${Tmp} ${Tmp} 0.1
 run		50000
 
 #################################
+######    Vacancy
+#################################
+
+#region		cancy block EDGE EDGE -2 2 EDGE EDGE side in units box
+#fix		hole all evaporate 1000 1 cancy ${seed}
+#
+#run		1000
+#unfix		hole
+
+#################################
+######    Substitution
+#################################
+
+region		substi block EDGE EDGE -2 2 EDGE EDGE side in units box
+group		stitut region substi
+set		group stitut type/subset 3 1 ${seed}
+
+#################################
 ######    Interstitial
 #################################
 
@@ -109,16 +120,6 @@ run		50000
 #
 #run		1000
 #unfix		extra
-
-#################################
-######    Vacancy
-#################################
-
-#region		cancy block EDGE EDGE -2 2 EDGE EDGE side in units box
-#fix		hole all evaporate 1000 1 cancy ${seed}
-#
-#run		1000
-#unfix		hole
 
 #################################
 ######    Relax nvt 2
