@@ -66,7 +66,7 @@ fix		cp1 all npt temp ${Tmp} ${Tmp} 0.1 iso 0 0 0.1
 fix		av1 all ave/time 1 10 25 v_T v_E v_V v_Pr &
 			v_Lx v_Ly v_Lz v_c1 v_c2 file relax.GRAIN
 
-dump		1 all atom 50 dump.GRAIN
+dump		1 all atom 50 dumpRel.GRAIN
 
 thermo_style	custom step temp pe press vol v_c1 v_c2
 thermo		10
@@ -130,8 +130,10 @@ unfix		av1
 ######    Diffusion
 #################################
 
+undump		1
 reset_timestep	0
 timestep	0.002
+dump		2 all atom 50 dumpRun.GRAIN
 
 fix		cent all recenter INIT INIT INIT
 
