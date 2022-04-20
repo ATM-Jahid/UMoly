@@ -108,6 +108,12 @@ region		substi block EDGE EDGE -2 2 EDGE EDGE side in units box
 group		stitut region substi
 set		group stitut type/subset 3 1 ${seed}
 
+variable	edg1 equal 2-v_halfY
+variable	edg2 equal v_halfY-2
+region		substi2 block EDGE EDGE ${edg1} ${edg2} EDGE EDGE side out units box
+group		stitut2 region substi2
+set		group stitut2 type/subset 3 1 ${seed}
+
 #################################
 ######    Interstitial
 #################################
