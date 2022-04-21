@@ -11,6 +11,9 @@ def main():
     for file in files:
         extract(file)
 
+    plt.legend()
+    plt.show()
+
 def extract(file):
     with open(file, 'r') as f:
         jar = f.readlines()
@@ -29,8 +32,8 @@ def extract(file):
 
     numBuff = (len(jar) - buffLen) // buffDiff + 1
     msd = [x / numBuff for x in msd]
-    plt.plot(msd)
-    plt.show()
+    tag = file[file.find('.')+1:]
+    plt.plot(msd, label=tag)
 
 if __name__ == '__main__':
     main()

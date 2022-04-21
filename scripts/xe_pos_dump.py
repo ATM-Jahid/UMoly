@@ -25,12 +25,12 @@ def extract(file):
     # boundary values
     blo, bhi = [[0]*3, [0]*3]
     for i in range(3):
-        blo[i], bhi[i] = [float(x) for x in jar[5*chunk+5+i].split()]
+        blo[i], bhi[i] = [float(x) for x in jar[5+i].split()]
 
     # initalize xe pos
     xe_init = [0]*6
     foo = ''
-    for line in jar[5*chunk+9: 6*chunk]:
+    for line in jar[9: chunk]:
         tmp = line.split()
         if int(tmp[1]) == 3:
             for l in range(3):
@@ -49,7 +49,7 @@ def extract(file):
     # loop over timesteps
     xe_curr = [0]*6
     foo = ''
-    for i in range(6, 406):
+    for i in range(1, 401):
         # go through lines of a timestep
         for line in jar[i*chunk+9: (i+1)*chunk]:
             tmp = line.split()
