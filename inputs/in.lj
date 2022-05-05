@@ -1,0 +1,85 @@
+#################################
+######    Initialization
+#################################
+
+log		ARGON.log
+units		lj
+boundary	p p p
+atom_style	atomic
+
+#################################
+######    Variables
+#################################
+
+variable	V equal vol
+variable	PE equal pe
+variable	KE equal ke
+variable	Pr equal press
+variable	T equal temp
+variable	Lx equal lx
+variable	Ly equal ly
+variable	Lz equal lz
+
+variable	density equal DENSE
+variable	lHalf equal lHALF
+variable	MoPart equal MOLY
+variable	seed equal SEED
+variable	Tmp equal TEMP
+
+#################################
+######    Geometry
+#################################
+
+lattice		fcc ${density}
+region		jar block -${lHalf} ${lHalf} -${lHalf} ${lHalf} &
+		-${lHalf} ${lHalf} units lattice
+create_box	2 jar
+create_atoms	1 region jar
+set		region jar type/ratio 2 ${MoPart} ${seed}
+
+mass		1 1.0
+mass		2 1.0
+
+pair_style	lj/cut 3.0
+pair_coeff	1 1 1.0 1.0
+pair_coeff	1 2 1.5 0.8
+pair_coeff	2 2 0.5 0.88
+
+group		A type 1
+group		B type 2
+variable	c1 equal count(A)
+variable	c2 equal count(B)
+
+#################################
+######    Relax nvt
+#################################
+
+velocity	all create ${Tmp} ${seed}
+fix		cv1 all nvt temp ${Tmp} ${Tmp} 0.1
+
+dump		1 all custom 1000 ARGON.dump id type xu yu zu
+
+thermo_style	custom step temp pe ke press vol v_c1 v_c2
+thermo		100
+
+timestep	0.01
+run		1000
+
+#################################
+######    Main run
+#################################
+
+compute		rdfAB all rdf 200 1 1 2 2 1 2
+
+compute		msdAA A msd
+compute		msdBB B msd
+compute		msdAB all msd
+
+fix		radial all ave/time 1 100 2000 &
+		c_rdfAB[1] c_rdfAB[2] c_rdfAB[4] c_rdfAB[6] &
+		file ARGON.rdf mode vector
+fix		mesdi all ave/time 1 5 100 &
+		v_T v_PE v_KE v_V v_Pr v_c1 v_c2 &
+		c_msdAA[4] c_msdBB[4] c_msdAB[4] file ARGON.msd
+
+run		2000
