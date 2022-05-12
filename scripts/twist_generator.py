@@ -9,7 +9,7 @@ parser.add_argument('-l', '--latt', default=3.14, metavar='', help='lattice cons
 parser.add_argument('-a', '--tilt', default=310, metavar='', help='lattice tilt angle', type=int)
 parser.add_argument('-x', '--xdim', default=50, metavar='', help='x dimension length', type=int)
 parser.add_argument('-y', '--ydim', default=200, metavar='', help='y dimension length', type=int)
-parser.add_argument('-z', '--zdim', default=30, metavar='', help='z dimension length', type=int)
+parser.add_argument('-z', '--zdim', default=50, metavar='', help='z dimension length', type=int)
 parser.add_argument('-M', '--moly', default='0.22', metavar='', help='Molybdenum portion')
 parser.add_argument('-t', '--temp', default='1200', metavar='', help='temperature in kelvin')
 parser.add_argument('-D', '--defect', default='none', metavar='', help='introduce interstitial/vacancy')
