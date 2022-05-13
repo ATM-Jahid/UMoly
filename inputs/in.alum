@@ -44,7 +44,7 @@ create_atoms	3 region bottom
 set		region jar type/ratio 1 ${MoPart} ${seed}
 
 pair_style	adp
-pair_coeff	* * /home/ahasan3/builds/illumine/potentials/Si_Au_Al.adp Si Au Al
+pair_coeff	* * /home/hasaatmj/builds/illumine/potentials/Si_Au_Al.adp Si Au Al
 
 group		up region top
 group		down region bottom

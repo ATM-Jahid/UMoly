@@ -44,7 +44,7 @@ create_atoms	1 region bottom
 set		region jar type/ratio 2 ${MoPart} ${seed}
 
 pair_style	adp
-pair_coeff	* * /home/atomsky/builds/illumine/potentials/U_Mo.alloy.adp U Mo
+pair_coeff	* * /home/afro/builds/illumine/potentials/U_Mo.alloy.adp U Mo
 
 group		up region top
 group		down region bottom
