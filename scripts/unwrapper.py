@@ -14,7 +14,6 @@ def main():
 
         # make write files for unwrapped dump
         fileName = file[file.find('.')+1:]
-        chkMsdFile = f'check_msd.{fileName}'
         atomUnwFile = f'unwDump.{fileName}'
 
         # number of atoms is constant in dumpRun
@@ -39,6 +38,13 @@ def main():
                 r_init[ii].append(float(i))
             # add more entries for periodic considerations
             r_init[ii].extend([0,0,0])
+
+            for l in range(3):
+                pos = r_init[ii][l+1] * (bhi[l] - blo[l])
+                atom_unw[ii][l+1] = pos
+
+        # print timestep 0
+        dumper(atomUnwFile, 0, N, blo, bhi, atom_unw)
 
         # define a previous timestep for periodicity considerations
         r_prev = copy.deepcopy(r_init)
@@ -76,19 +82,22 @@ def main():
                     pos = (r_curr[ii][l+4] + r_curr[ii][l+1]) * (bhi[l] - blo[l])
                     atom_unw[ii][l+1] = pos
 
-            # print atom MSDs to a file
-            with open(atomUnwFile, 'a') as f:
-                f.write(f'ITEM: TIMESTEP\n{timestep}\n' +
-                        f'ITEM: NUMBER OF ATOMS\n{N}\n' +
-                        f'ITEM: BOX BOUNDS pp pp pp\n' +
-                        f'{blo[0]} {bhi[0]}\n{blo[1]} {bhi[1]}\n{blo[2]} {bhi[2]}\n' +
-                        f'ITEM: ATOMS id type xu yu zu\n')
-                for x in range(1, len(atom_unw)):
-                    f.write(f'{x} {atom_unw[x][0]} {atom_unw[x][1]:.5} '
-                        + f'{atom_unw[x][2]:.5} {atom_unw[x][3]:.5}\n')
+            # print into unwDump file
+            dumper(atomUnwFile, timestep, N, blo, bhi, atom_unw)
 
             # prep for next iteration
             r_prev = copy.deepcopy(r_curr)
+
+def dumper(writeFile, time, num_atom, loB, upB, unw_jar):
+    with open(writeFile, 'a') as f:
+        f.write(f'ITEM: TIMESTEP\n{time}\n' +
+                f'ITEM: NUMBER OF ATOMS\n{num_atom}\n' +
+                f'ITEM: BOX BOUNDS pp pp pp\n' +
+                f'{loB[0]} {upB[0]}\n{loB[1]} {upB[1]}\n{loB[2]} {upB[2]}\n' +
+                f'ITEM: ATOMS id type xu yu zu\n')
+        for x in range(1, len(unw_jar)):
+            f.write(f'{x} {unw_jar[x][0]} {unw_jar[x][1]:.5} '
+                + f'{unw_jar[x][2]:.5} {unw_jar[x][3]:.5}\n')
 
 if __name__ == '__main__':
     main()
