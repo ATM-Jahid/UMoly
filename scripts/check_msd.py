@@ -7,6 +7,7 @@ def main():
     files = sys.argv[1:]
     print(files)
 
+    # input "unwDump" files
     for file in files:
         with open(file, 'r') as f:
             jar = f.readlines()

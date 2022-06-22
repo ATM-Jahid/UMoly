@@ -51,7 +51,6 @@ def main():
 
         # loop over all timesteps
         r_curr = [0]*(N+1)
-        fooPrint = ''
         for i in range(1, 101):
             # get timestep
             timestep = int(jar[i*chunk+1])
