@@ -8,3 +8,5 @@ args = parser.parse_args()
 
 mkdir -p @(args.input)
 mv *.@(args.input)* @(args.input)/
+
+# vim: ft=python
