@@ -30,7 +30,7 @@ def extract(file):
         foo = f.readlines()
     for i in range(len(foo)):
         tmp = foo[i].split()
-        foo[i] = [int(tmp[0]), int(float(tmp[1]) > 3)]
+        foo[i] = [int(tmp[0]), float(tmp[1]) < 3]
 
     num_bulk_u = 0; num_bulk_mo = 0
     num_gb_u = 0; num_gb_mo = 0
@@ -47,13 +47,14 @@ def extract(file):
                 num_gb_mo += 1
     assert (num_bulk_u+num_bulk_mo+num_gb_u+num_gb_mo) == N
 
-    buffDiff = 5
+    buffDiff = 10
     buffLen = 50
     bulk_u = [0]*buffLen; bulk_mo = [0]*buffLen
     gb_u_2d = [0]*buffLen; gb_mo_2d = [0]*buffLen
     gb_u_3d = [0]*buffLen; gb_mo_3d = [0]*buffLen
 
-    for b in range(0, timesteps-buffLen, buffDiff):
+    start = 20
+    for b in range(start, timesteps-buffLen, buffDiff):
         r_init = []
         for line in jar[b*chunk+9: (b+1)*chunk]:
             tmp = line.split()
@@ -77,7 +78,8 @@ def extract(file):
                         gb_mo_2d[j] += d2
                         gb_mo_3d[j] += d3
 
-    numBuff = (len(jar) - buffLen) // buffDiff + 1
+    numBuff = (timesteps - buffLen - start) // buffDiff + 1
+    print(numBuff)
     bulk_u = [x / num_bulk_u / numBuff for x in bulk_u]
     bulk_mo = [x / num_bulk_mo / numBuff for x in bulk_mo]
     gb_u_2d = [x / num_gb_u / numBuff for x in gb_u_2d]
@@ -86,7 +88,9 @@ def extract(file):
     gb_mo_3d = [x / num_gb_mo / numBuff for x in gb_mo_3d]
 
     tag = file[file.find('.')+1:]
-    plt.plot(gb_u_2d, label=tag)
+    plt.plot(gb_u_2d, label=tag+'_u_2d')
+    plt.plot(gb_mo_2d, label=tag+'_mo_2d')
+    plt.plot(bulk_u, label=tag+'_u_bulk')
 
 if __name__ == '__main__':
     main()
