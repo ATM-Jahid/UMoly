@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import matplotlib.pyplot as plt
 
 def main():
     # input "unwDump" files
@@ -10,9 +9,6 @@ def main():
 
     for file in files:
         extract(file)
-
-    plt.legend()
-    plt.show()
 
 def extract(file):
     with open(file, 'r') as f:
@@ -79,7 +75,6 @@ def extract(file):
                         gb_mo_3d[j] += d3
 
     numBuff = (timesteps - buffLen - start) // buffDiff + 1
-    print(numBuff)
     bulk_u = [x / num_bulk_u / numBuff for x in bulk_u]
     bulk_mo = [x / num_bulk_mo / numBuff for x in bulk_mo]
     gb_u_2d = [x / num_gb_u / numBuff for x in gb_u_2d]
@@ -87,10 +82,17 @@ def extract(file):
     gb_u_3d = [x / num_gb_u / numBuff for x in gb_u_3d]
     gb_mo_3d = [x / num_gb_mo / numBuff for x in gb_mo_3d]
 
-    tag = file[file.find('.')+1:]
-    plt.plot(gb_u_2d, label=tag+'_u_2d')
-    plt.plot(gb_mo_2d, label=tag+'_mo_2d')
-    plt.plot(bulk_u, label=tag+'_u_bulk')
+    with open(writeFile, 'a') as f:
+        f.write(f'#Number of buffers: {numBuff}\n' +
+                f'#U in gb: {num_gb_u}; #Mo in gb: {num_gb_mo}\n' +
+                f'#U in bulk: {num_bulk_u}; #Mo in bulk: {num_bulk_mo}\n' +
+                '#Buffer averaged mean squared displacements\n' +
+                '#gb_u_2d gb_mo_2d gb_u_3d gb_mo_3d bulk_u bulk_mo\n' +
+                '0 0 0 0 0 0\n')
+        for i in range(buffLen):
+            f.write(f'{gb_u_2d[i]:.5} {gb_mo_2d[i]:.5} ' +
+                    f'{gb_u_3d[i]:.5} {gb_mo_3d[i]:.5} ' +
+                    f'{bulk_u[i]:.5} {bulk_mo[i]:.5}\n')
 
 if __name__ == '__main__':
     main()
