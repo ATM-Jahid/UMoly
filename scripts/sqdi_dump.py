@@ -1,18 +1,10 @@
 #!/usr/bin/env python3
 
 import sys
-import numpy as np
-import matplotlib.pyplot as plt
 
 def main():
     # input "unwDump" files
     files = sys.argv[1:]
-    # option for drawing histograms
-    if '-p' in files:
-        files.remove('-p')
-        p = 1
-    else:
-        p = 0
     print(files)
 
     for file in files:
@@ -40,13 +32,6 @@ def main():
         with open(writeFile, 'a') as f:
             for ii in range(N):
                 f.write(f'{sqdi[ii][0]} {sqdi[ii][1]}\n')
-
-        if p:
-            jar = [x[1] for x in sqdi]
-            binwidth = 0.5
-            binlist = np.arange(min(jar), max(jar)+binwidth, binwidth)
-            plt.hist(jar, binlist)
-            plt.show()
 
 if __name__ == '__main__':
     main()
