@@ -4,29 +4,24 @@ import sys
 import matplotlib.pyplot as plt
 
 def main():
+    # input "buff_msd" files
     files = sys.argv[1:]
     print(files)
 
     for file in files:
         with open(file, 'r') as f:
             jar = f.readlines()
-        jar = jar[2:]
+        jar = jar[5:]
 
-        time = []; tot = []
-        x = []; y = []; z = []
-
+        u = []; mo = []
         for line in jar:
             tmp = line.split()
-            time.append(float(tmp[0]))
-            x.append(float(tmp[1]))
-            y.append(float(tmp[2]))
-            z.append(float(tmp[3]))
-            tot.append(float(tmp[4]))
+            u.append(float(tmp[0]))
+            mo.append(float(tmp[1]))
 
-        plt.plot(time, x, 'r')
-        plt.plot(time, y, 'g')
-        plt.plot(time, z, 'b')
-        plt.plot(time, tot, 'k')
+        plt.plot(u, 'r', label='U')
+        plt.plot(mo, 'g', label='Mo')
+        plt.legend()
         plt.show()
 
 if __name__ == '__main__':
