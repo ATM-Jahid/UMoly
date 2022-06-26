@@ -9,31 +9,32 @@ def extract(readFile, writeFile):
     jar = jar[2:]
     temp = int(readFile[readFile.find('at')+2:readFile.find('/')])
 
-    x = []; z = []; r = []
+    u = []; mo = []
     for line in jar:
         tmp = line.split()
-        x.append(float(tmp[0]))
-        z.append(float(tmp[2]))
-        r.append(float(tmp[3]))
+        if 'U' in tmp[0]:
+            u.append(float(tmp[1]))
+        elif 'Mo' in tmp[0]:
+            mo.append(float(tmp[1]))
 
-    x_mean, x_std = mean(x), stdev(x)
-    z_mean, z_std = mean(z), stdev(z)
-    r_mean, r_std = mean(r), stdev(r)
+    u_mean, u_std = mean(u), stdev(u)
+    mo_mean, mo_std = mean(mo), stdev(mo)
 
-    if z_mean/x_mean < 0.5 or x_mean/z_mean < 0.5:
-        xi = 1
-    else:
-        xi = 2
-
+    xi = 2
     to_pico = 1/0.002
     to_si = 1e-8
-    diff = 1 / 2 / xi * r_mean * to_pico * to_si
-    devi = 1 / 2 / xi * r_std * to_pico * to_si
+
+    diff_u = 1 / 2 / xi * u_mean * to_pico * to_si
+    devi_u = 1 / 2 / xi * u_std * to_pico * to_si
+    diff_mo = 1 / 2 / xi * mo_mean * to_pico * to_si
+    devi_mo = 1 / 2 / xi * mo_std * to_pico * to_si
 
     with open(writeFile, 'a') as f:
-        f.write(f'{temp}\t{xi}\t{diff}\t{devi}\n')
+        f.write(f'{temp} {diff_u:.5e} {devi_u:.5e} ' +
+                f'{diff_mo:.5e} {devi_mo:.5e}\n')
 
 def main():
+    # input "./clf_slopes" files
     files = sys.argv[1:]
     print(files)
 
@@ -42,8 +43,8 @@ def main():
     writeFile = f'diffusivities_{fileName}'
 
     with open(writeFile, 'a') as f:
-        f.write(f'# Diffusivities for {fileName}\n')
-        f.write('# temp dim. mean stdev\n')
+        f.write(f'# Diffusivities for {fileName}\n' +
+                '# temp U_mean U_stdev Mo_mean Mo_stdev\n')
 
     for file in files:
         extract(file, writeFile)

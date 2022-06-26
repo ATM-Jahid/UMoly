@@ -35,6 +35,7 @@ def draw(fileName, writeFile, p):
         plt.show()
 
 def main():
+    # input "buff_msd" files
     folder = sys.argv[1:]
     if '-p' in folder:
         folder.remove('-p')
