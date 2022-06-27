@@ -22,6 +22,7 @@ def extract(file):
     # number of atoms
     N = int(jar[3])
     chunk = N + 9
+    timesteps = len(jar) // chunk
 
     # boundary values
     blo, bhi = [[0]*3, [0]*3]
@@ -51,7 +52,7 @@ def extract(file):
     xe_prev = copy.deepcopy(xe_init)
 
     # loop over timesteps
-    for i in range(1, 401):
+    for i in range(1, timesteps):
         timestep = int(jar[i*chunk+1])
         xe_curr = {}
         # go through lines of a timestep
