@@ -40,8 +40,8 @@ def main():
             r_init[ii].extend([0,0,0])
 
             for l in range(3):
-                pos = r_init[ii][l+1] * (bhi[l] - blo[l])
-                atom_unw[ii][l+1] = pos
+                scaled = r_init[ii][l+1] * (bhi[l] - blo[l])
+                atom_unw[ii][l+1] = scaled - bhi[l]
 
         # print timestep 0
         dumper(atomUnwFile, 0, N, blo, bhi, atom_unw)
@@ -78,8 +78,8 @@ def main():
                         # not copying values from previous timestep introduced a bug
                         r_curr[ii][l+4] = r_prev[ii][l+4]
 
-                    pos = (r_curr[ii][l+4] + r_curr[ii][l+1]) * (bhi[l] - blo[l])
-                    atom_unw[ii][l+1] = pos
+                    scaled = (r_curr[ii][l+4] + r_curr[ii][l+1]) * (bhi[l] - blo[l])
+                    atom_unw[ii][l+1] = scaled - bhi[l]
 
             # print into unwDump file
             dumper(atomUnwFile, timestep, N, blo, bhi, atom_unw)
