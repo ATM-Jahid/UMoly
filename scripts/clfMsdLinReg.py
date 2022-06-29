@@ -21,7 +21,7 @@ def draw(fileName, writeFile, p):
     m2, b2 = np.polyfit(step, mo, 1)
 
     with open(writeFile, 'a') as f:
-        f.write(f'U: {m1:0.6} {b1:0.6}\nMo: {m2:0.6} {b2:0.6}\n')
+        f.write(f'U: {m1:e} {b1:e}\nMo: {m2:e} {b2:e}\n')
 
     if p:
         ordinate1 = [m1*x+b1 for x in step]

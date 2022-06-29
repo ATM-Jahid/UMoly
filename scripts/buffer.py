@@ -45,9 +45,9 @@ def extract(file):
 
     buffDiff = 10
     buffLen = 50
-    bulk_u = [0]*buffLen; bulk_mo = [0]*buffLen
-    gb_u_2d = [0]*buffLen; gb_mo_2d = [0]*buffLen
-    gb_u_3d = [0]*buffLen; gb_mo_3d = [0]*buffLen
+    bulk_u = [0.0]*buffLen; bulk_mo = [0.0]*buffLen
+    gb_u_2d = [0.0]*buffLen; gb_mo_2d = [0.0]*buffLen
+    gb_u_3d = [0.0]*buffLen; gb_mo_3d = [0.0]*buffLen
 
     start = 20
     for b in range(start, timesteps-buffLen, buffDiff):
@@ -93,7 +93,7 @@ def extract(file):
                 f'#U in bulk: {num_bulk_u}; #Mo in bulk: {num_bulk_mo}\n' +
                 '#Buffer averaged mean squared displacements\n' +
                 '#gb_u_2d gb_mo_2d gb_u_3d gb_mo_3d bulk_u bulk_mo\n' +
-                '0 0 0 0 0 0\n')
+                '0.0 0.0 0.0 0.0 0.0 0.0\n')
         for i in range(buffLen):
             f.write(f'{gb_u_2d[i]:.5} {gb_mo_2d[i]:.5} ' +
                     f'{gb_u_3d[i]:.5} {gb_mo_3d[i]:.5} ' +
