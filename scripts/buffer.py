@@ -75,12 +75,17 @@ def extract(file):
                         gb_mo_3d[j] += d3
 
     numBuff = (timesteps - buffLen - start) // buffDiff + 1
-    bulk_u = [x / num_bulk_u / numBuff for x in bulk_u]
-    bulk_mo = [x / num_bulk_mo / numBuff for x in bulk_mo]
-    gb_u_2d = [x / num_gb_u / numBuff for x in gb_u_2d]
-    gb_mo_2d = [x / num_gb_mo / numBuff for x in gb_mo_2d]
-    gb_u_3d = [x / num_gb_u / numBuff for x in gb_u_3d]
-    gb_mo_3d = [x / num_gb_mo / numBuff for x in gb_mo_3d]
+    # avoid "div by zero" error
+    if num_bulk_u:
+        bulk_u = [x / num_bulk_u / numBuff for x in bulk_u]
+    if num_gb_u:
+        gb_u_2d = [x / num_gb_u / numBuff for x in gb_u_2d]
+        gb_u_3d = [x / num_gb_u / numBuff for x in gb_u_3d]
+    if num_bulk_mo:
+        bulk_mo = [x / num_bulk_mo / numBuff for x in bulk_mo]
+    if num_gb_mo:
+        gb_mo_2d = [x / num_gb_mo / numBuff for x in gb_mo_2d]
+        gb_mo_3d = [x / num_gb_mo / numBuff for x in gb_mo_3d]
 
     with open(writeFile, 'a') as f:
         f.write(f'#Number of buffers: {numBuff}\n' +

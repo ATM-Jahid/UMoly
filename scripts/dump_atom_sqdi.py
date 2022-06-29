@@ -4,6 +4,7 @@ import sys
 import copy
 
 def main():
+    # input "dump" files, not "dumpRun" ones
     files = sys.argv[1:]
     print(files)
 
@@ -19,6 +20,7 @@ def main():
         # number of atoms
         N = int(jar[3])
         chunk = N + 9
+        timesteps = len(jar) // chunk
 
         # boundary values
         blo, bhi = [[0]*3, [0]*3]
@@ -44,7 +46,7 @@ def main():
         # loop over all timesteps
         r_curr = [0]*(N+1)
         fooPrint = ''
-        for i in range(6, 106):
+        for i in range(6, timesteps):
             # get timestep
             timestep = int(jar[i*chunk+1])
             # initialize MSD variable

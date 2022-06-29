@@ -19,6 +19,7 @@ def main():
         # number of atoms
         N = int(jar[3])
         chunk = N + 9
+        timesteps = len(jar) // chunk
 
         # initialize atom positions
         r_init = [0]*(N+1)
@@ -36,7 +37,7 @@ def main():
         # loop over all timesteps
         r_curr = [0]*(N+1)
         fooPrint = ''
-        for i in range(1, 101):
+        for i in range(1, timesteps):
             # get timestep
             timestep = int(jar[i*chunk+1])
             # initialize MSD variable
