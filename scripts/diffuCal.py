@@ -46,7 +46,7 @@ def main():
 
     file1 = files[0]
     fileName = file1[:file1.find('at')]
-    writeFile = f'diffusivities_{fileName}'
+    writeFile = f'diffusivities.{fileName}'
 
     with open(writeFile, 'a') as f:
         f.write(f'# Diffusivities for {fileName}\n' +

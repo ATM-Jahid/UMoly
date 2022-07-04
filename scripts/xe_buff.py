@@ -50,7 +50,7 @@ def extract(file):
         f.write(f'#Number of buffers: {numBuff}\n' +
                 f'#Xe in gb: {N}\n#Xe in bulk: 0\n' +
                 '#Buffer averaged mean squared displacements\n' +
-                '#gb_xe_2d gb_xe_3d\n0 0\n')
+                '#gb_xe_2d gb_xe_3d\n0.0 0.0\n')
         for i in range(buffLen):
             f.write(f'{xe_2d[i]:.5} {xe_3d[i]:.5}\n')
 
