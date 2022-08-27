@@ -24,7 +24,9 @@ def extract(readFile, writeFile):
     tot_mean, tot_std = mean(tot), stdev(tot)
 
     xi = 2
-    to_pico = 1e-5/0.002
+    # 50,000 timesteps with a size of 0.002 ps
+    to_pico = 1 / (50000 * 0.002)
+    # 1e-20/1e-12; from angstrom^2/ps to m^2/s
     to_si = 1e-8
 
     diff_u = 1 / 2 / xi * u_mean * to_pico * to_si
