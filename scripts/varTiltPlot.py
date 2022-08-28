@@ -30,19 +30,22 @@ def draw(file, mark, colo, lstyle):
     lstyle1 = next(lstyle)
     mark1 = next(mark)
     tag = f"{fileName.split('_')[0]} {{{fileName.split('_')[1]}}}"
+    #tag = f"{fileName[fileName.find('/')+1:fileName.find('.')]}"
 
     plt.plot(overT, np.exp(u_fit), ls=lstyle1, color=tint1)
     plt.scatter(overT, y_tot, marker=mark1, color=tint1)
     plt.plot([], [], color=tint1, marker=mark1, ls=lstyle1, label=tag)
 
 def main():
+    # input "diffusivities" files of compositions
+    files = sys.argv[1:]
+
+    n = len(files)
+    tints = itertools.cycle(tuple([i/(n-1) for i in range(n)]))
     markers = itertools.cycle(('o','s','p','v','x','+'))
-    tints = itertools.cycle((0.0,1.0,0.2,0.8,0.4,0.6))
     lines = itertools.cycle(('-', '--', ':', '-.', (0, (5, 10)), (0, (3, 1, 1, 10))))
 
     plt.figure(figsize=(5,4))
-    # input "diffusivities" files of compositions
-    files = sys.argv[1:]
     for file in files:
         draw(file, markers, tints, lines)
 
@@ -53,6 +56,7 @@ def main():
     plt.legend()
     plt.tight_layout()
     plt.savefig(f"{files[0][:files[0].find('/')]}.pdf")
+    #plt.savefig('composition.pdf')
     plt.show()
 
 if __name__ == '__main__':
