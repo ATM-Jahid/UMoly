@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from statistics import mean, stdev
 
 def draw(fileName, writeFile, p):
     with open(fileName, 'r') as f:

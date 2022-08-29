@@ -3,6 +3,7 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True
 
 def main():
     # input "sqdi_last" files
@@ -15,10 +16,16 @@ def main():
 
         jar = [float(x.split()[1]) for x in jar]
 
-        binwidth = 0.5
+        binwidth = 1.0
         binlist = np.arange(min(jar), max(jar)+binwidth, binwidth)
-        plt.hist(jar, binlist)
-        plt.show()
+
+        plt.figure(figsize=(5,4))
+        plt.hist(jar, binlist, color=plt.cm.viridis(0.5))
+        plt.xlabel(r'$r^2$ (\r{A}$^2$)')
+        plt.ylabel('Count')
+        plt.xlim(0, 60)
+        plt.ylim(0, 300)
+        plt.savefig('histogram.pdf')
 
 if __name__ == '__main__':
     main()
