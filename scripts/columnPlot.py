@@ -42,24 +42,37 @@ def main():
         tints = itertools.cycle(tuple([i/(n-1) for i in range(n)]))
     else:
         tints = itertools.cycle((0.3, 0.7))
-    markers = itertools.cycle(('o','s','p','v','x','+'))
-    lines = itertools.cycle(('-', '--', ':', '-.', (0, (5, 10)), (0, (3, 1, 1, 10))))
+    markers = itertools.cycle(('o','s','p','v','x','+','^'))
+    lines = itertools.cycle(('-', '--', ':', '-.',
+        (0, (5, 10)), (0, (3, 1, 1, 10))))
 
     # hardcoded
-    columns = itertools.cycle(([0,1], [0,3], [0,5]))
-    tags = itertools.cycle(('U', 'Mo', 'Xe'))
+    columns = itertools.cycle(([0,1], [0,1], [0,1],
+        [0,3], [0,1], [0,1], [0,5], [0,1]))
+    tags = itertools.cycle((
+        r'$D^U_{gb}$',
+        r'$D^U_{self}$ (S1)',
+        r'$D^U_{self}$ (P1)',
+        r'$D^{Mo}_{gb}$',
+        r'$D^{Mo}_{self}$ (S1)',
+        r'$D^{Mo}_{self}$ (P1)',
+        r'$D^{Xe}_{gb}$',
+        r'$D^{Xe}_{vac}$ (P2)'))
 
-    plt.figure(figsize=(5,4))
+    plt.figure(figsize=(5,6))
     for file in files:
         draw(file, columns, tags, markers, tints, lines)
 
-    #plt.ylim(1e-14, 1e-10)
+    # change the y axis range
+    plt.ylim(1e-20, 1e-10)
     plt.xlabel(r'$10^4$/T (1/K)')
     plt.ylabel(r'Diffusivity (m$^2$s$^{-1}$)')
     plt.yscale('log')
     plt.legend()
     plt.tight_layout()
-    plt.show()
+    # change the output name in the next line
+    plt.savefig('comparison.pdf')
+    #plt.show()
 
 if __name__ == '__main__':
     main()
