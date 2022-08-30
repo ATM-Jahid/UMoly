@@ -25,6 +25,7 @@ def main():
         plt.ylabel('Count')
         plt.xlim(0, 60)
         plt.ylim(0, 300)
+        plt.tight_layout()
         plt.savefig('histogram.pdf')
 
 if __name__ == '__main__':
