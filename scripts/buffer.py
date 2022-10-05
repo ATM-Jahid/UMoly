@@ -4,6 +4,7 @@ import sys
 
 def main():
     # input "unwDump" files
+    # "sqdi_last" filenames are inherited from unwDump
     files = sys.argv[1:]
     print(files)
 
@@ -26,6 +27,7 @@ def extract(file):
         foo = f.readlines()
     for i in range(len(foo)):
         tmp = foo[i].split()
+        # the condition below is different in buff_xyz
         foo[i] = [int(tmp[0]), float(tmp[1]) < 3]
 
     num_bulk_u = 0; num_bulk_mo = 0
