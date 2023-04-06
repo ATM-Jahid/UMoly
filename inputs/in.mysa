@@ -44,7 +44,6 @@ create_atoms	1 region top
 region		bottom block INF INF -${yHalf} 0.1 INF INF
 lattice		bcc ${latCon2} orient x 1 0 0 orient y 0 1 0 orient z 0 0 1
 create_atoms	1 region bottom
-set		region jar type/ratio 2 ${MoPart} ${seed}
 
 pair_style	adp
 pair_coeff	* * /home/afro/builds/illumine/potentials/U_Mo.alloy.adp U Mo
@@ -52,6 +51,7 @@ pair_coeff	* * /home/afro/builds/illumine/potentials/U_Mo.alloy.adp U Mo
 group		up region top
 group		down region bottom
 delete_atoms	overlap 2.7 up down compress yes
+set		region jar type/ratio 2 ${MoPart} ${seed}
 
 group		u type 1
 group		mo type 2

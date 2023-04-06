@@ -41,7 +41,6 @@ create_atoms	3 region top
 region		bottom block INF INF -${yHalf} 0.1 INF INF
 lattice		fcc ${latCons} orient x -$Q -$P 0 orient y $P -$Q 0 orient z 0 0 1
 create_atoms	3 region bottom
-set		region jar type/ratio 1 ${MoPart} ${seed}
 
 pair_style	adp
 pair_coeff	* * /home/afro/builds/illumine/potentials/Si_Au_Al.adp Si Au Al
@@ -49,6 +48,7 @@ pair_coeff	* * /home/afro/builds/illumine/potentials/Si_Au_Al.adp Si Au Al
 group		up region top
 group		down region bottom
 delete_atoms	overlap 2.7 up down compress yes
+set		region jar type/ratio 1 ${MoPart} ${seed}
 
 group		si type 1
 group		al type 3
