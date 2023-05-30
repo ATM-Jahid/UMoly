@@ -1,0 +1,30 @@
+ITEM: init end diff
+1 2 1
+ITEM: number of atoms
+2
+ITEM: id type x1 y1 z1 x2 y2 z2
+1 1 2 3 4 2 3 3
+2 2 6 3 4 7 3 3
+ITEM: init end diff
+2 3 1
+ITEM: number of atoms
+3
+ITEM: id type x1 y1 z1 x2 y2 z2
+1 1 2 3 3 2 4 7
+2 2 7 3 3 9 4 7
+3 1 4 5 6 6 5 4
+ITEM: init end diff
+3 4 1
+ITEM: number of atoms
+2
+ITEM: id type x1 y1 z1 x2 y2 z2
+1 1 2 4 7 3 5 8
+2 2 9 4 7 8 5 8
+ITEM: init end diff
+4 5 1
+ITEM: number of atoms
+3
+ITEM: id type x1 y1 z1 x2 y2 z2
+1 1 3 5 8 2 2 6
+2 2 8 5 8 7 2 6
+3 1 6 5 4 7 8 9
