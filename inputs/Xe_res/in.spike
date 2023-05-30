@@ -56,7 +56,7 @@ group			spatom region spike
 variable		eff_temp equal ${pkaEn}/count(spatom)*(2/3)/(8.617333*10^(-5))
 
 pair_style		hybrid/overlay adp zbl 1.0 2.0
-pair_coeff		* * adp /home/hasaatmj/inl_work/potential/UMoXe.ADP.txt U Mo Xe
+pair_coeff		* * adp /home/hasaatmj/builds/illumine/potentials/UMoXe.adp U Mo Xe
 pair_coeff		1 1 zbl 92 92
 pair_coeff		1 2 zbl 92 42
 pair_coeff		1 3 zbl 92 54
@@ -85,7 +85,7 @@ compute			Nint all reduce sum v_isInt
 ######      Relax NPT
 #######################################
 
-reset_atom_ids	sort yes
+reset_atoms		id sort yes
 velocity		all create ${Tmp} ${seed}
 
 fix				elec all electron/stopping 2.5 Srim_UMoXe.es
