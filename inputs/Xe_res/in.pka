@@ -1,0 +1,150 @@
+#######################################
+######      Initialization
+#######################################
+
+log				log.__CASCADE
+units			metal
+boundary		p p p
+atom_style		full
+
+#######################################
+######      Variables
+#######################################
+
+variable		V equal vol
+variable		PE equal pe
+variable		TE equal etotal
+variable		Pr equal press
+variable		T equal temp
+variable		Lx equal lx
+variable		Ly equal ly
+variable		Lz equal lz
+
+variable		latCons equal __LATT
+variable		xLen equal __xDIM
+variable		yLen equal __yDIM
+variable		zLen equal __zDIM
+
+variable		MoPart equal __MOLY
+variable		XeNum equal __XENON
+
+variable		bubRad equal __BUBBLE_RADIUS
+variable		bubShl equal __BUBBLE_SHELL
+variable		pkaType equal __PKA_TYPE
+variable		pkaDist equal __PKA_DISTANCE
+variable		pkaEn equal __PKA_ENERGY
+
+variable		Tmp equal __TEMP
+variable		seed equal __SEED
+
+#######################################
+######      Geometry
+#######################################
+
+lattice			bcc ${latCons}
+region			brick block 0 ${xLen} 0 ${yLen} 0 ${zLen} units lattice
+create_box		3 brick
+create_atoms	1 region brick
+
+region			void sphere $((xhi-xlo)/2) $((yhi-ylo)/2) $((zhi-zlo)/2) &
+					${bubRad} units box
+delete_atoms	region void
+region			resolved sphere $((xhi-xlo)/2) $((yhi-ylo)/2) $((zhi-zlo)/2) &
+					$(v_bubRad+v_bubShl) units box side out
+
+pair_style		hybrid/overlay adp zbl 1.0 2.0
+pair_coeff		* * adp /home/hasaatmj/inl_work/potential/UMoXe.ADP.txt U Mo Xe
+pair_coeff		1 1 zbl 92 92
+pair_coeff		1 2 zbl 92 42
+pair_coeff		1 3 zbl 92 54
+pair_coeff		2 2 zbl 42 42
+pair_coeff		2 3 zbl 42 54
+pair_coeff		3 3 zbl 54 54
+
+set				region brick type/ratio 2 ${MoPart} ${seed}
+create_atoms	3 random 700 ${seed} void overlap 0.8 maxtry 100
+
+group			u type 1
+group			mo type 2
+group			xe type 3
+variable		c1 equal count(u)
+variable		c2 equal count(mo)
+variable		c3 equal count(xe)
+variable		c4 equal count(xe,resolved)
+
+compute			voro all voronoi/atom occupation
+variable		isVac atom c_voro[1]==0
+variable		isInt atom c_voro[2]>1
+compute			Nvac all reduce sum v_isVac
+compute			Nint all reduce sum v_isInt
+
+#######################################
+######      Relax NPT
+#######################################
+
+reset_atom_ids	sort yes
+velocity		all create ${Tmp} ${seed}
+
+fix				elec all electron/stopping 2.5 Srim_UMoXe.es
+fix				cp1 all npt temp ${Tmp} ${Tmp} 0.1 aniso 0 0 0.1
+fix				av1 all ave/time 1 5000 5000 v_T v_PE v_TE v_Pr v_Lx v_Ly v_Lz &
+					v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint file relax.__CASCADE
+
+dump			1 all atom 5000 dumpRel.__CASCADE
+
+thermo_style	custom step temp pe press vol v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint
+thermo			1000
+
+timestep		0.002
+run				50000
+
+unfix			cp1
+unfix			av1
+undump			1
+
+#######################################
+######      PKA
+#######################################
+
+region			wall block $(xlo+v_latCons) $(xhi-v_latCons) $(ylo+v_latCons) $(yhi-v_latCons) &
+					$(zlo+v_latCons) $(zhi-v_latCons) units box side out
+group			edge region wall
+
+region			pksite sphere $((xhi-xlo)/2-v_pkaDist) $((yhi-ylo)/2) $((zhi-zlo)/2) &
+					5 units box
+#fix				pka all deposit 1 2 1 ${seed} region pksite near 1.5 attempt 1000 &
+#					vx ${pkaVel} ${pkaVel} vy 0 50 vz 0 50 units box
+group			pk1 region pksite
+group			pk2 type ${pkaType}
+group			pk3 intersect pk1 pk2
+
+set				group all mol 0
+reset_mol_ids	pk3 single yes
+group			pka molecule 1
+#set				group pka type/ratio 3 1 ${seed}
+variable		pkaMass equal mass(pka)
+
+variable		pkaVel equal 138.818*sqrt(${pkaEn}/${pkaMass})
+velocity		pka set ${pkaVel} 0 0 units box
+
+fix				casc all nve
+fix				sink edge langevin ${Tmp} ${Tmp} 100.0 ${seed}
+
+fix				av1 all ave/time 1 5000 5000 v_T v_PE v_TE v_Pr v_Lx v_Ly v_Lz &
+					v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint file pkaavg.__CASCADE
+
+dump			2 all atom 5000 dumpPka.__CASCADE
+
+thermo			500
+
+timestep		0.00005
+run				30000
+
+timestep		0.0001
+run				30000
+
+timestep		0.001
+run				40000
+
+timestep		0.002
+run				40000
