@@ -1,0 +1,152 @@
+##############################
+#####	Initialization
+##############################
+
+log				log.__PRGRAD
+units			metal
+boundary		p p p
+atom_style		atomic
+
+##############################
+#####	Variables
+##############################
+
+variable		V equal vol
+variable		T equal temp
+variable		P equal press
+variable		E equal pe
+variable		Lx equal lx
+variable		Ly equal ly
+variable		Lz equal lz
+variable		Px equal pxx
+variable		Py equal pyy
+variable		Pz equal pzz
+variable		seed equal __SEED
+
+##############################
+#####	Geometry
+##############################
+
+lattice			bcc 3.3
+region			1 block 0 80 0 20 0 20 units lattice
+create_box		2 1
+create_atoms	1 region 1
+
+region			inblock block 2 78 INF INF INF INF
+group			inside region inblock
+group			outside subtract all inside 
+
+set				type 1 type/ratio 2 0.22 ${seed}
+
+pair_style		adp
+pair_coeff		* * /home/hasaatmj/builds/illumine/potentials/U_Mo.alloy.adp U Mo
+
+group			u type 1
+group			mo type 2
+
+variable		c1 equal count(u)
+variable		c2 equal count(mo)
+
+compute			1 all pe
+compute			2 all msd
+timestep		0.001
+
+region			defect sphere 40 10 10 1 side in
+
+##############################
+#####	Relax npt
+##############################
+
+velocity		all create 1200 ${seed}
+
+fix				cp1 all npt temp 1200 1200 0.1 aniso 0 0 0.1
+fix				rel all ave/time 1 50000 50000 v_T v_E v_V v_P v_Lx v_Ly v_Lz &
+					v_c1 v_c2 v_Px v_Py v_Pz file relax.__PRGRAD
+
+dump			1 all custom 25000 dumpRel.__PRGRAD id type x y z 
+
+thermo_style	custom step temp pe press vol v_c1 v_c2
+thermo			1000
+
+run				100000
+
+unfix			cp1
+
+##############################
+#####	Relax nvt
+##############################
+
+variable		newx equal f_rel[5]
+variable		newy equal f_rel[6]
+variable		newz equal f_rel[7]
+
+change_box		all x final 0 ${newx} y final 0 ${newy} z final 0 ${newz} remap units box
+
+fix				cv1 all nvt temp 1200 1200 0.1
+
+run				50000
+
+unfix			cv1
+unfix			rel
+
+##############################
+#####	Force ramping
+##############################
+
+variable		totF equal 0.005
+variable		ffxn equal ${totF}*(step-150000)/50000
+
+fix				cv2 inside nvt temp 1200 1200 0.1
+
+fix				ramp all ave/time 1 25000 50000 v_T v_E v_V v_P v_c1 v_c2 file ramp.__PRGRAD
+
+fix				f1 inside addforce v_ffxn 0 0
+fix				setf outside setforce 0 0 0
+
+## Define Chunks
+compute			SA all stress/atom NULL
+compute			cc1 all chunk/atom bin/1d x lower 2
+compute			num all property/chunk cc1 count  #Pii = - ncount*sii/(volume of bin)
+fix				ckf all ave/chunk 1 25000 100000 cc1 c_SA[1] c_SA[2] c_SA[3] file chunk.__PRGRAD
+
+thermo_style	custom step temp pe press vol v_c1 v_c2
+thermo			1000
+
+run				50000
+
+unfix			f1
+fix				f2 inside addforce ${totF} 0 0
+
+run				1000000
+
+unfix			ramp
+undump			1
+
+##############################
+#####	Point defect
+##############################
+
+#-------Interstitial----------
+variable		int_t equal random(1,100,${seed})
+if				"${int_t} > 22" then "variable i_t equal 1" else "variable i_t equal 2"
+
+fix				int all deposit 1 ${i_t} 1 ${seed} region defect near 1.5 attempt 1000 units box
+run				1000
+unfix			int
+#-----------------------------
+
+#-------Vacancy---------------
+#fix				vac all evaporate 1 1 defect ${seed}
+#run				1
+#unfix			vac
+#-----------------------------
+
+fix				def all ave/time 1 25000 50000 v_T v_E v_V v_P v_c1 v_c2 file def.__PRGRAD
+
+dump			2 all custom 10000 dumpDef.__PRGRAD id type x y z
+
+group			u type 1
+group			mo type 2
+group			inside region inblock
+
+run				1000000
