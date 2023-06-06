@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -N GRAIN
-#PBS -l select=1:ncpus=48:mpiprocs=48
-#PBS -l walltime=10:00
+#PBS -l select=6:ncpus=48:mpiprocs=12:ompthreads=4
+#PBS -l walltime=1:00:00
 #PBS -j oe
 #PBS -P mmm
 
