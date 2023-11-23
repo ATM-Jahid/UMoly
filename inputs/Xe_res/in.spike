@@ -11,6 +11,8 @@ atom_style		full
 ######      Variables
 #######################################
 
+variable		DT equal dt
+variable		TIME equal time
 variable		V equal vol
 variable		PE equal pe
 variable		TE equal etotal
@@ -32,6 +34,7 @@ variable		bubRad equal __BUBBLE_RADIUS
 variable		bubShl equal __BUBBLE_SHELL
 variable		pkaEn equal __PKA_ENERGY
 variable		spkRad equal __SPIKE_RADIUS
+variable		offDis equal __OFFCENT_DIST
 
 variable		Tmp equal __TEMP
 variable		seed equal __SEED
@@ -51,10 +54,6 @@ delete_atoms	region void
 region			resolved sphere $((xhi-xlo)/2) $((yhi-ylo)/2) $((zhi-zlo)/2) &
 					$(v_bubRad+v_bubShl) units box side out
 
-region			spike cylinder z $((xhi-xlo)/2) $((yhi-ylo)/2) ${spkRad} EDGE EDGE units box
-group			spatom region spike
-variable		eff_temp equal ${pkaEn}/count(spatom)*(2/3)/(8.617333*10^(-5))
-
 pair_style		hybrid/overlay adp zbl 1.0 2.0
 pair_coeff		* * adp /home/hasaatmj/builds/illumine/potentials/UMoXe.adp U Mo Xe
 pair_coeff		1 1 zbl 92 92
@@ -65,7 +64,11 @@ pair_coeff		2 3 zbl 42 54
 pair_coeff		3 3 zbl 54 54
 
 set				region brick type/ratio 2 ${MoPart} ${seed}
-create_atoms	3 random 700 ${seed} void overlap 0.8 maxtry 100
+create_atoms	3 random ${XeNum} ${seed} void overlap 0.8 maxtry 100
+
+region			spike cylinder z $((xhi-xlo)/2+v_offDis) $((yhi-ylo)/2) ${spkRad} EDGE EDGE units box
+group			spatom region spike
+variable		eff_temp equal ${pkaEn}/count(spatom)*(2/3)/(8.617333*10^(-5))
 
 group			u type 1
 group			mo type 2
@@ -88,14 +91,17 @@ compute			Nint all reduce sum v_isInt
 reset_atoms		id sort yes
 velocity		all create ${Tmp} ${seed}
 
-fix				elec all electron/stopping 2.5 Srim_UMoXe.es
 fix				cp1 all npt temp ${Tmp} ${Tmp} 0.1 aniso 0 0 0.1
-fix				av1 all ave/time 1 5000 5000 v_T v_PE v_TE v_Pr v_Lx v_Ly v_Lz &
-					v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint file relax.__CASCADE
+fix				cent1 all recenter INIT INIT INIT
+
+fix				av1 all ave/time 1 5000 5000 v_DT v_TIME v_T v_PE v_TE v_Pr &
+					v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint &
+					file relax.__CASCADE
 
 dump			1 all atom 5000 dumpRel.__CASCADE
 
-thermo_style	custom step temp pe press vol v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint
+thermo_style	custom step dt time temp pe press vol &
+					v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint
 thermo			1000
 
 timestep		0.002
@@ -103,36 +109,31 @@ run				50000
 
 unfix			cp1
 unfix			av1
+unfix			cent1
 undump			1
 
 #######################################
 ######      Thermal spike
 #######################################
 
-region			wall block $(xlo+3*v_latCons) $(xhi-3*v_latCons) $(ylo+3*v_latCons) $(yhi-3*v_latCons) &
-					$(zlo+3*v_latCons) $(zhi-3*v_latCons) units box side out
+region			wall block $(xlo+3*v_latCons) $(xhi-3*v_latCons) &
+					$(ylo+3*v_latCons) $(yhi-3*v_latCons) &
+					EDGE EDGE units box side out
 group			edge region wall
 
 velocity		spatom scale ${eff_temp}
 
 fix				casc all nve
-fix				sink edge langevin ${Tmp} ${Tmp} 100.0 ${seed}
+fix				sink edge temp/csvr ${Tmp} ${Tmp} 0.005 ${seed}
+fix				cent2 all recenter INIT INIT INIT
 
-fix				av1 all ave/time 1 5000 5000 v_T v_PE v_TE v_Pr v_Lx v_Ly v_Lz &
-					v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint file pkaavg.__CASCADE
+fix				av2 all ave/time 1 5000 5000 v_DT v_TIME v_T v_PE v_TE v_Pr &
+					v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint &
+					file spikeavg.__CASCADE
 
-dump			2 all atom 5000 dumpPka.__CASCADE
+dump			2 all atom 5000 dumpSpike.__CASCADE
 
 thermo			500
 
-timestep		0.00005
-run				30000
-
-timestep		0.0001
-run				30000
-
-timestep		0.001
-run				40000
-
-timestep		0.002
-run				40000
+fix				time all dt/reset 10 0.00001 0.005 0.01
+run				200000
