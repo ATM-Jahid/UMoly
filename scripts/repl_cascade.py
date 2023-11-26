@@ -16,7 +16,7 @@ parser.add_argument('-s', '--bShl', default=10, metavar='', help='bubble shell w
 parser.add_argument('-p', '--pTyp', default=-1, metavar='', help='PKA type', type=int)
 parser.add_argument('-d', '--pDis', default=50, metavar='', help='PKA distance from bubble (box unit)', type=float)
 parser.add_argument('-e', '--pEn', default=100, metavar='', help='PKA energy', type=float)
-parser.add_argument('-R', '--sRad', default=35, metavar='', help='thermal spike radius (box unit)', type=float)
+parser.add_argument('-R', '--sRad', default=34.5, metavar='', help='thermal spike radius (box unit)', type=float)
 parser.add_argument('-c', '--offcent', default=0, metavar='', help='thermal spike offset (box unit)', type=float)
 parser.add_argument('-t', '--temp', default=400, metavar='', help='temperature in kelvin', type=float)
 parser.add_argument('-i', '--input', default='cascade', metavar='', help='input file name')

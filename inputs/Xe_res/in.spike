@@ -5,7 +5,7 @@
 log				log.__CASCADE
 units			metal
 boundary		p p p
-atom_style		full
+atom_style		atomic
 
 #######################################
 ######      Variables
@@ -78,30 +78,22 @@ variable		c2 equal count(mo)
 variable		c3 equal count(xe)
 variable		c4 equal count(xe,resolved)
 
-compute			voro all voronoi/atom occupation
-variable		isVac atom c_voro[1]==0
-variable		isInt atom c_voro[2]>1
-compute			Nvac all reduce sum v_isVac
-compute			Nint all reduce sum v_isInt
-
 #######################################
 ######      Relax NPT
 #######################################
 
-reset_atoms		id sort yes
 velocity		all create ${Tmp} ${seed}
 
+fix				elec all electron/stopping 2.5 Srim_UMoXe.es
 fix				cp1 all npt temp ${Tmp} ${Tmp} 0.1 aniso 0 0 0.1
 fix				cent1 all recenter INIT INIT INIT
 
 fix				av1 all ave/time 1 5000 5000 v_DT v_TIME v_T v_PE v_TE v_Pr &
-					v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint &
-					file relax.__CASCADE
+					v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 v_c4 file relax.__CASCADE
 
 dump			1 all atom 5000 dumpRel.__CASCADE
 
-thermo_style	custom step dt time temp pe press vol &
-					v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint
+thermo_style	custom step dt time temp pe press vol v_c1 v_c2 v_c3 v_c4
 thermo			1000
 
 timestep		0.002
@@ -116,24 +108,23 @@ undump			1
 ######      Thermal spike
 #######################################
 
-region			wall block $(xlo+3*v_latCons) $(xhi-3*v_latCons) &
-					$(ylo+3*v_latCons) $(yhi-3*v_latCons) &
+region			wall block $(xlo+6*v_latCons) $(xhi-6*v_latCons) &
+					$(ylo+6*v_latCons) $(yhi-6*v_latCons) &
 					EDGE EDGE units box side out
 group			edge region wall
 
 velocity		spatom scale ${eff_temp}
 
 fix				casc all nve
-fix				sink edge temp/csvr ${Tmp} ${Tmp} 0.005 ${seed}
+fix				sink edge temp/csvr ${Tmp} ${Tmp} 0.5 ${seed}
 fix				cent2 all recenter INIT INIT INIT
 
 fix				av2 all ave/time 1 5000 5000 v_DT v_TIME v_T v_PE v_TE v_Pr &
-					v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 v_c4 c_Nvac c_Nint &
-					file spikeavg.__CASCADE
+					v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 v_c4 file spikeavg.__CASCADE
 
 dump			2 all atom 5000 dumpSpike.__CASCADE
 
 thermo			500
 
-fix				time all dt/reset 10 0.00001 0.005 0.01
-run				200000
+fix				time all dt/reset 10 0.00001 0.005 0.025
+run				250000
