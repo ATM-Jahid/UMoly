@@ -43,7 +43,7 @@ lattice		fcc ${latCons} orient x -$Q -$P 0 orient y $P -$Q 0 orient z 0 0 1
 create_atoms	3 region bottom
 
 pair_style	adp
-pair_coeff	* * /home/afro/builds/illumine/potentials/Si_Au_Al.adp Si Au Al
+pair_coeff	* * /home/hasaatmj/builds/illumine/potentials/Si_Au_Al.adp Si Au Al
 
 group		up region top
 group		down region bottom

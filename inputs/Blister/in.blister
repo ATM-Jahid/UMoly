@@ -1,0 +1,129 @@
+#######################################
+######      Initialization
+#######################################
+
+log				log.blister
+units			metal
+boundary		p p p
+atom_style		atomic
+
+#######################################
+######      Variables
+#######################################
+
+variable		DT equal dt
+variable		TIME equal time
+variable		V equal vol
+variable		PE equal pe
+variable		TE equal etotal
+variable		Pr equal press
+variable		T equal temp
+variable		Lx equal lx
+variable		Ly equal ly
+variable		Lz equal lz
+
+variable		xLen equal 205.8
+variable		yLen equal 205.8
+variable		zLen equal 500
+variable		midsect equal 205.8
+
+variable		MoPart equal 0.22
+variable		bubRad equal 20
+variable		XeNum equal 328
+variable		cutoff equal 1.0
+
+variable		Tmp equal 400
+variable		seed equal 1971
+
+variable		Ndump equal 1
+variable		Ntherm equal 1
+variable		Nave equal 1
+variable		Nequil equal 1
+variable		Nrun equal 1
+
+#######################################
+######      Geometry
+#######################################
+
+region			jar block 0 ${xLen} 0 ${yLen} 0 ${zLen} units box
+create_box		3 jar
+
+read_data		fin.lmp add append
+
+group			u type 1
+set				group u type/ratio 2 ${MoPart} ${seed}
+
+region			face1 sphere $(v_xLen/4) $(v_yLen/4) ${midsect} &
+					${bubRad} units box
+region			face2 sphere $(v_xLen/4) $(v_yLen/4*3) ${midsect} &
+					${bubRad} units box
+region			face3 sphere $(v_xLen/4*3) $(v_yLen/4) ${midsect} &
+					${bubRad} units box
+region			face4 sphere $(v_xLen/4*3) $(v_yLen/4*3) ${midsect} &
+					${bubRad} units box
+
+region			corn1 sphere $(v_xLen/2) $(v_yLen/2) ${midsect} &
+					${bubRad} units box
+#region			corn1 ellipsoid $(v_xLen/2) $(v_yLen/2) ${midsect} &
+#					${bubRad} 10 10 units box
+
+delete_atoms	region face1
+delete_atoms	region face2
+delete_atoms	region face3
+delete_atoms	region face4
+delete_atoms	region corn1
+
+create_atoms	3 random ${XeNum} ${seed} face1 overlap ${cutoff} maxtry 100
+create_atoms	3 random ${XeNum} ${seed} face2 overlap ${cutoff} maxtry 100
+create_atoms	3 random ${XeNum} ${seed} face3 overlap ${cutoff} maxtry 100
+create_atoms	3 random ${XeNum} ${seed} face4 overlap ${cutoff} maxtry 100
+create_atoms	3 random ${XeNum} ${seed} corn1 overlap ${cutoff} maxtry 100
+
+group			u clear
+group			u type 1
+group			mo type 2
+group			xe type 3
+variable		c1 equal count(u)
+variable		c2 equal count(mo)
+variable		c3 equal count(xe)
+
+pair_style		adp
+pair_coeff		* * /home/hasaatmj/builds/illumine/potentials/UMoXe.adp U Mo Xe
+
+#######################################
+######      Relax NPT
+#######################################
+
+velocity		all create ${Tmp} ${seed}
+
+fix				cp1 all npt temp ${Tmp} ${Tmp} 0.1 aniso 0 0 0.1
+fix				av1 all ave/time 1 ${Nave} ${Nave} v_DT v_TIME v_T &
+					v_PE v_TE v_Pr v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 &
+					file relax.blister
+
+dump			1 all atom ${Ndump} dumpRel.blister
+
+thermo_style	custom step dt time temp pe press vol v_c1 v_c2 v_c3
+thermo			${Ntherm}
+
+run				${Nequil}
+
+unfix			cp1
+unfix			av1
+undump			1
+
+#######################################
+######      Run
+#######################################
+
+fix				inflate all deposit 10 3 1 1971 region corn1 near &
+					${cutoff} attempt 100 units box
+fix				cv1 all nvt temp ${Tmp} ${Tmp} 0.1
+fix				av2 all ave/time 1 ${Nave} ${Nave} v_DT v_TIME v_T &
+					v_PE v_TE v_Pr v_Lx v_Ly v_Lz v_V v_c1 v_c2 v_c3 &
+					file runavg.blister
+
+dump			2 all atom ${Ndump} dumpRun.blister
+
+fix				time all dt/reset 10 0.00001 0.005 0.025
+run				${Nrun}
